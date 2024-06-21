@@ -7,8 +7,6 @@
 // configure DE settings for asciidoc
 include::config.adoc[]
 
-:doctype: book
-
 = Template
 :revnumber: 8.2 DE
 :revdate: Januar 2023
