@@ -4,4 +4,4 @@ __pycache__/
 *$py.class
 
 # VSCODE Settings
-./setting.json
+.vscode/settings.json
