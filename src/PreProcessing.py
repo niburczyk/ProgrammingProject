@@ -19,8 +19,8 @@ def bandpass_filter(data, lowcut, highcut, fs, order):
     return y
 
 # Funktion zum Berechnen des Mittelwerts
-def calculate_mean(filtered_data):
-    return np.mean(filtered_data, axis=0)
+def calculate_mean(data):
+    return np.mean(data, axis=0)
 
 # Funktion zum Darstellen des Signals
 def plot_signal(original_data, filtered_data, title):
@@ -41,11 +41,11 @@ def plot_signal(original_data, filtered_data, title):
 # Hauptskript
 if __name__ == "__main__":
     # Parameter
-    folder_path = '.\sample\Condition_F'  # Pfad zum Ordner mit den .mat-Dateien
+    folder_path = '.\sample\Condition-F'  # Pfad zum Ordner mit den .mat-Dateien
     lowcut = 0.5  # untere Grenzfrequenz des Bandpassfilters
-    highcut = 10.0  # obere Grenzfrequenz des Bandpassfilters
+    highcut = 20.0  # obere Grenzfrequenz des Bandpassfilters
     fs = 2000  # Abtastfrequenz in Hz
-    order = 1  # Filterordnung
+    order = 3  # Filterordnung
 
     # Durch alle Dateien im Ordner iterieren
     for filename in os.listdir(folder_path):
