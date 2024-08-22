@@ -3,6 +3,8 @@ import numpy as np
 from scipy.io import loadmat
 from scipy.signal import butter, filtfilt
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+import pandas as pd
 
 # Funktion zum Einlesen der .mat-Datei
 def read_mat_file(filename):
@@ -21,6 +23,10 @@ def bandpass_filter(data, lowcut, highcut, fs, order):
 # Funktion zum Berechnen des Mittelwerts
 def calculate_mean(data):
     return np.mean(data, axis=0)
+
+# Funktion zur Berechnung des Median
+def calculate_median(data):
+    return np.median(data, axis=0)
 
 # Funktion zum Darstellen des Signals
 def plot_signal(original_data, filtered_data, title):
@@ -41,36 +47,85 @@ def plot_signal(original_data, filtered_data, title):
 # Hauptskript
 if __name__ == "__main__":
     # Parameter
-    folder_path = '.\sample\Condition-F'  # Pfad zum Ordner mit den .mat-Dateien
+    base_folder_path = './sample'  # Basispfad zum Ordner mit den Unterordnern
     lowcut = 1  # untere Grenzfrequenz des Bandpassfilters
     highcut = 20.0  # obere Grenzfrequenz des Bandpassfilters
     fs = 2000  # Abtastfrequenz in Hz
     order = 3  # Filterordnung
 
-    # Durch alle Dateien im Ordner iterieren
-    for filename in os.listdir(folder_path):
-        if filename.endswith('.mat'):
-            file_path = os.path.join(folder_path, filename)
+    # Zeit in Sekunden, die entfernt werden soll
+    remove_time = 2
+    remove_samples = remove_time * fs  # Anzahl der zu entfernenden Abtastwerte
 
-            # Einlesen der .mat-Datei
-            mat_data = read_mat_file(file_path)
-            print(f"Matlab Data for {filename}: ", mat_data)
+    # Listen für Features und Labels
+    features = []
+    labels = []
 
-            # Angenommen, die .mat-Datei enthält eine Variable namens 'data'
-            data = mat_data['data']
+    # Durch alle Unterordner im Basisordner iterieren
+    for condition_folder in os.listdir(base_folder_path):
+        folder_path = os.path.join(base_folder_path, condition_folder)
+        if os.path.isdir(folder_path):  # Prüfen, ob es ein Verzeichnis ist
+            # Durch alle Dateien im Unterordner iterieren
+            for filename in os.listdir(folder_path):
+                if filename.endswith('.mat'):
+                    file_path = os.path.join(folder_path, filename)
 
-            # Anwenden des Bandpassfilters auf jeden Vektor (jede Spalte)
-            filtered_data = bandpass_filter(data, lowcut, highcut, fs, order)
+                    # Einlesen der .mat-Datei
+                    mat_data = read_mat_file(file_path)
 
-            # Berechnen des Mittelwerts für jeden Vektor
-            mean_vector = calculate_mean(filtered_data)
+                    # Angenommen, die .mat-Datei enthält eine Variable namens 'data'
+                    data = mat_data['data']
 
-            # Optional: Den Mittelwertvektor speichern oder weiter verarbeiten
-            print(f"Mean Vector for {filename}:", mean_vector)
+                    # Anwenden des Bandpassfilters auf jeden Vektor (jede Spalte)
+                    filtered_data = bandpass_filter(data, lowcut, highcut, fs, order)
 
-            # Optional: Den Mittelwertvektor in eine Datei speichern
-            output_filename = f'mean_vector_{os.path.splitext(filename)[0]}.npy'
-            #np.save(os.path.join(folder_path, output_filename), mean_vector)
+                    # Kürzen der Werte 2 Sekunden vorne und 2 Sekunden hinten
+                    filtered_data = np.abs(filtered_data[remove_samples:-remove_samples])
 
-            # Darstellen des Original- und des gefilterten Signals
-            plot_signal(data, filtered_data, os.path.splitext(filename)[0])
+                    # Berechnen des Mittelwerts und Median für jeden Vektor
+                    mean_vector = calculate_mean(filtered_data)
+                    median_vector = calculate_median(filtered_data)
+
+                    # Kombinieren der Mittelwert- und Median-Vektoren
+                    feature_vector = np.concatenate((mean_vector, median_vector))
+
+                    # Bestimmen der Bewegung aus dem Dateinamen oder Ordnernamen
+                    if 'F' in condition_folder:
+                        label = 'Fist'
+                    elif 'O' in condition_folder:
+                        label = 'Open'
+                    elif 'P' in condition_folder:
+                        label = 'Pinch'
+                    else:
+                        print(f"Unbekannter Bewegungstyp in {filename}")
+                        continue
+
+                    # Hinzufügen der Features und Labels zur Liste
+                    features.append(feature_vector)
+                    labels.append(label)
+
+    # Konvertieren der Listen in NumPy-Arrays
+    features = np.array(features)
+    labels = np.array(labels)
+
+    # Kodierung der Labels
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(labels)
+
+    # Erstellen eines DataFrames für die Features und Labels
+    df = pd.DataFrame(features)
+    df['label'] = encoded_labels
+
+    # Speichern der Features und Labels in eine CSV-Datei
+    df.to_csv('training_dataset.csv', index=False)
+    print("Training dataset saved as 'training_dataset.csv'.")
+
+    # Optional: Beispielhafte Darstellung eines Signals
+    if len(features) > 0:
+        example_filename = os.listdir(folder_path)[0]
+        example_file_path = os.path.join(folder_path, example_filename)
+        mat_data = read_mat_file(example_file_path)
+        data = mat_data['data']
+        filtered_data = bandpass_filter(data, lowcut, highcut, fs, order)
+        filtered_data = np.abs(filtered_data[remove_samples:-remove_samples])
+        plot_signal(data, filtered_data, os.path.splitext(example_filename)[0])
