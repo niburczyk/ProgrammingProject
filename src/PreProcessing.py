@@ -48,10 +48,10 @@ def plot_signal(original_data, filtered_data, title):
 if __name__ == "__main__":
     # Parameter
     base_folder_path = './sample'  # Basispfad zum Ordner mit den Unterordnern
-    lowcut = 1  # untere Grenzfrequenz des Bandpassfilters
+    lowcut = 2  # untere Grenzfrequenz des Bandpassfilters
     highcut = 20.0  # obere Grenzfrequenz des Bandpassfilters
     fs = 2000  # Abtastfrequenz in Hz
-    order = 3  # Filterordnung
+    order = 4  # Filterordnung
 
     # Zeit in Sekunden, die entfernt werden soll
     remove_time = 2
