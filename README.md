@@ -10,7 +10,6 @@ Dieses Projekt beinhaltet den Quellcode und die Dokumentation zur Entwicklung ei
 - [Modell-Export](#modell-export)
 - [Verwendung auf dem Arduino](#verwendung-auf-dem-arduino)
 - [Autoren](#autoren)
-- [Lizenz](#lizenz)
 
 ## Installation
 
@@ -18,7 +17,7 @@ Um das Projekt lokal auszuführen, folge diesen Schritten:
 
 1. Klone das Repository:
    ```bash
-   git clone https://github.com/deinbenutzername/ProgrammingProject.git
+   git clone https://github.com/niburczyk/ProgrammingProject.git
    cd ProgrammingProject
    ```
 
@@ -37,8 +36,11 @@ Um das Projekt lokal auszuführen, folge diesen Schritten:
 
 Die EMG-Daten stammen von Elektroden, die am Unterarm platziert sind und die elektrische Aktivität der Muskeln messen. Diese Daten werden verwendet, um verschiedene Handpositionen zu klassifizieren. Eine typische Datensatzstruktur könnte wie folgt aussehen:
 
-- `emg_data.csv`: Eine CSV-Datei, die die EMG-Rohdaten enthält.
-- `labels.csv`: Eine CSV-Datei mit den entsprechenden Handpositionslabels.
+- `.\sample`: in diesem Ordner befinden sich die vorweg klassifizierten Rohdaten in Unterordnern.
+   - `.\sample\Condition-F`: In diesem Ordner befinden sich die Rohdaten der Kondition F, diese beschreibt Faust geschlossen (F = Fist) 
+   - `.\sample\Condition-O`: In diesem Ordner befinden sich die Rohdaten der Kondition O, diese beschreibt Faust offen (O = Open) 
+   - `.\sample\Condition-P`: In diesem Ordner befinden sich die Rohdaten der Kondition P, diese beschreibt den Pinzettengriff (P = Pinch) 
+- `training_dataset.csv`: Eine CSV-Datei mit den entsprechenden Trainingsdaten, diese beinhaltet die features sowie die labels.
 
 ## Modellentwicklung
 
@@ -46,7 +48,9 @@ Der Prozess der Modellentwicklung umfasst die folgenden Schritte:
 
 1. **Datenvorverarbeitung**:
    - Normalisierung der EMG-Daten
-   - Segmentierung der Daten in Zeitfenster
+   - Segmentierung der Daten
+   - Bandpassfilterung der Daten
+      - Ermittlung der optimalen Bandpasseinstellung
 
 2. **Merkmalextraktion**:
    - Berechnung von statistischen Merkmalen (z.B. Mittelwert, Varianz) für jedes Zeitfenster
@@ -57,7 +61,7 @@ Der Prozess der Modellentwicklung umfasst die folgenden Schritte:
 4. **Modellbewertung**:
    - Bewertung des Modells anhand von Metriken wie Genauigkeit, Präzision und Recall
 
-Der vollständige Code für die Modellentwicklung befindet sich in der Datei `model_training.py`.
+Der vollständige Code für die Modellentwicklung befindet sich in der Datei `GenerateSVM.py`.
 
 ## Modell-Export
 
@@ -102,12 +106,7 @@ void loop() {
 
 ## Autoren
 
-- **Niklas Burczyk** - [GitHub-Profil](https://github.com/deinbenutzername)
-
-## Lizenz
-
-Dieses Projekt steht unter der MIT-Lizenz. Details siehe [LICENSE](LICENSE).
-
+- **Niklas Burczyk** - [GitHub-Profil](https://github.com/niburczyk)
 ---
 
 Viel Erfolg mit deinem Projekt! Wenn du Fragen hast, zögere nicht, ein Issue zu eröffnen oder mich direkt zu kontaktieren.
