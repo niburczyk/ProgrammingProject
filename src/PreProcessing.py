@@ -42,7 +42,7 @@ def plot_signal(original_data, filtered_data, title):
 if __name__ == "__main__":
     # Parameter
     folder_path = '.\sample\Condition-F'  # Pfad zum Ordner mit den .mat-Dateien
-    lowcut = 0.5  # untere Grenzfrequenz des Bandpassfilters
+    lowcut = 1  # untere Grenzfrequenz des Bandpassfilters
     highcut = 20.0  # obere Grenzfrequenz des Bandpassfilters
     fs = 2000  # Abtastfrequenz in Hz
     order = 3  # Filterordnung
@@ -54,6 +54,7 @@ if __name__ == "__main__":
 
             # Einlesen der .mat-Datei
             mat_data = read_mat_file(file_path)
+            print(f"Matlab Data for {filename}: ", mat_data)
 
             # Angenommen, die .mat-Datei enthält eine Variable namens 'data'
             data = mat_data['data']
