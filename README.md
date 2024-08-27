@@ -7,6 +7,7 @@ Dieses Projekt beinhaltet den Quellcode und die Dokumentation zur Entwicklung ei
 - [Installation](#installation)
 - [Datenbeschreibung](#datenbeschreibung)
 - [Modellentwicklung](#modellentwicklung)
+- [Modell Speicherung](#modell-speicherung)
 - [Modell-Export](#modell-export)
 - [Verwendung auf dem Arduino](#verwendung-auf-dem-arduino)
 - [Autoren](#autoren)
@@ -63,9 +64,21 @@ Der Prozess der Modellentwicklung umfasst die folgenden Schritte:
 
 Der vollständige Code für die Modellentwicklung befindet sich in der Datei `GenerateSVM.py`.
 
-## Modell-Export
+## Modell-Speicherung
+Das trainierte SVM-Modell wird mit der Bibliothek `joblib` in einer Datei gespeichert, die zur weiteren Verarbeitung oder in anderen Python-Projekten verwendet werden kann.
 
-Das trainierte SVM-Modell wird in einem format exportiert, das auf einem Arduino verwendet werden kann. Hierzu wird die Bibliothek `sklearn-porter` verwendet, um das Modell in C-Code zu konvertieren.
+```bash
+pip install joblib
+```
+```python
+import joblib
+
+model_filename = 'svm_model.pkl'
+joblib.dump(svm_model, model_filename)
+````
+
+## Modell-Export
+Das trainierte SVM-Modell kann in ein format exportiert werden, das auf einem Arduino verwendet werden kann. Hierzu kann die Bibliothek `sklearn-porter` verwendet werden, um das Modell in C-Code zu konvertieren.
 
 ```
 pip install sklearn-porter
