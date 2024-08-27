@@ -2,9 +2,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-from sklearn_porter import Porter  # Zum Exportieren des Modells
 import matplotlib.pyplot as plt
 import seaborn as sns  # Für eine bessere Visualisierung der Konfusionsmatrix
+import joblib  # Für das Speichern und Laden des Modells
 
 # Pfad zur CSV-Datei
 csv_file_path = './training_dataset.csv'
@@ -44,12 +44,10 @@ plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.show()
 
-# Modell in eine .h-Datei exportieren
-porter = Porter(svm_model, language='c')
-output = porter.export(embed_data=True)
+# Modell mit joblib speichern
+model_filename = 'svm_model.pkl'
+joblib.dump(svm_model, model_filename)
+print(f"SVM-Modell wurde als {model_filename} gespeichert.")
 
-# Speichern in eine .h Datei
-header_filename = 'svm_model.h'
-with open(header_filename, 'w') as f:
-    f.write(output)
-print(f"SVM-Modell wurde als {header_filename} exportiert.")
+# Modell mit joblib laden (optional)
+# svm_model_loaded = joblib.load(model_filename)

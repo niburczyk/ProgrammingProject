@@ -67,6 +67,10 @@ Der vollständige Code für die Modellentwicklung befindet sich in der Datei `Ge
 
 Das trainierte SVM-Modell wird in einem format exportiert, das auf einem Arduino verwendet werden kann. Hierzu wird die Bibliothek `sklearn-porter` verwendet, um das Modell in C-Code zu konvertieren.
 
+```
+pip install sklearn-porter
+```
+
 ```python
 from sklearn_porter import Porter
 
