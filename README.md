@@ -80,7 +80,7 @@ with open('svm_model.h', 'w') as file:
 
 ## Verwendung auf dem Arduino
 
-Nachdem das Modell in C-Code konvertiert wurde, kann es auf einem Arduino verwendet werden. Der generierte Code (`svm_model.h`) wird in das Arduino-Projekt eingebunden und kann zur Klassifizierung der Echtzeit-EMG-Daten genutzt werden.
+Nachdem das Modell in C-Code konvertiert wurde, kann es auf einem Arduino verwendet werden. Das ertselle Modell (`svm_model.h`) wird in das Arduino-Projekt eingebunden und kann zur Klassifizierung der Echtzeit-EMG-Daten genutzt werden.
 
 Ein Beispiel-Sketch für den Arduino könnte wie folgt aussehen:
 
