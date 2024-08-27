@@ -28,6 +28,14 @@ def calculate_mean(data):
 def calculate_median(data):
     return np.median(data, axis=0)
 
+# Funktion zur Berechnung der Standardabweichung
+def claculate_std(data):
+    return np.std(data, axis=0)
+
+# Funktion zur Berechnung der Varianz
+def calculate_variance(data):
+    return np.var(data, axis=0)
+
 # Funktion zum Darstellen des Signals
 def plot_signal(original_data, filtered_data, title):
     plt.figure(figsize=(14, 7))
@@ -48,8 +56,8 @@ def plot_signal(original_data, filtered_data, title):
 if __name__ == "__main__":
     # Parameter
     base_folder_path = './sample'  # Basispfad zum Ordner mit den Unterordnern
-    lowcut = 2  # untere Grenzfrequenz des Bandpassfilters
-    highcut = 20.0  # obere Grenzfrequenz des Bandpassfilters
+    lowcut = 1.25  # untere Grenzfrequenz des Bandpassfilters
+    highcut = 22.5  # obere Grenzfrequenz des Bandpassfilters
     fs = 2000  # Abtastfrequenz in Hz
     order = 4  # Filterordnung
 
@@ -85,9 +93,11 @@ if __name__ == "__main__":
                     # Berechnen des Mittelwerts und Median für jeden Vektor
                     mean_vector = calculate_mean(filtered_data)
                     median_vector = calculate_median(filtered_data)
+                    standard_deviation_vector = claculate_std(filtered_data)
+                    variance_vector = calculate_variance(filtered_data)
 
                     # Kombinieren der Mittelwert- und Median-Vektoren
-                    feature_vector = np.concatenate((mean_vector, median_vector))
+                    feature_vector = np.concatenate((median_vector, mean_vector))
 
                     # Bestimmen der Bewegung aus dem Dateinamen oder Ordnernamen
                     if 'F' in condition_folder:

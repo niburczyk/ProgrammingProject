@@ -31,8 +31,8 @@ best_snr = -np.inf
 best_params = None
 
 # Grid Search über verschiedene Parameter
-for lowcut in [0.5, 1.0, 2.0]:
-    for highcut in [15.0, 20.0, 30.0]:
+for lowcut in [1, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75]:
+    for highcut in [15.0, 20.0, 21, 22, 22.5, 23, 25, 30.0]:
         for order in [2, 3, 4]:
             filtered_signal = bandpass_filter(original_signal, lowcut, highcut, fs, order)
             
