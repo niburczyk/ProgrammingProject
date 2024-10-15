@@ -28,11 +28,6 @@ Um das Projekt lokal auszuführen, folge diesen Schritten:
    source env/bin/activate  # Auf Windows: env\Scripts\activate
    ```
 
-3. Installiere die notwendigen Abhängigkeiten:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
 ## Datenbeschreibung
 
 Die EMG-Daten stammen von Elektroden, die am Unterarm platziert sind und die elektrische Aktivität der Muskeln messen. Diese Daten werden verwendet, um verschiedene Handpositionen zu klassifizieren. Eine typische Datensatzstruktur könnte wie folgt aussehen:
