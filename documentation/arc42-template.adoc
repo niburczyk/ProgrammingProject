@@ -1,41 +1,11 @@
-// Header-Datei für das arc42-Template,
-// einschließlich aller Hilfetexte
-//
-// ====================================
-
-// Konfiguration der DE-Einstellungen für Asciidoc
-include::config.adoc[]
-
-// Dokumenttitel und Metainformationen
-= Template
-:revnumber: 8.2 DE
-:revdate: Januar 2023
-:revremark: (basiert auf AsciiDoc Version)
-// TOC-Titel muss dem Dokumenttitel ohne Leerzeile folgen!
+= arc42-Dokumentation für das Projekt "SVM zur Bestimmung von Handpositionen mittels EMG-Daten"
+:revnumber: 1.0
+:revdate: Oktober 2024
 :toc-title: Inhaltsverzeichnis
 
-// Zusätzlicher Stil für arc42-Hilfshinweise
-ifdef::backend-html5[]
-++++
-<style>
-.arc42help {font-size:small; width: 14px; height: 16px; overflow: hidden; position: absolute; right: 0; padding: 2px 0 3px 2px;}
-.arc42help::before {content: "?";}
-.arc42help:hover {width:auto; height: auto; z-index: 100; padding: 10px;}
-.arc42help:hover::before {content: "";}
-@media print {
-	.arc42help {display:none;}
-}
-</style>
-++++
-endif::backend-html5[]
-
-// Informationen über arc42
-include::about-arc42.adoc[]
-
-// Horizontale Linie
+// Horizontaler Strich
 ***
 
-// Nummerierung ab hier
 :numbered:
 
 <<<<
