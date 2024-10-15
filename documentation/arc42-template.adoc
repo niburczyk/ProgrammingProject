@@ -62,29 +62,21 @@ include::04_solution_strategy.adoc[]
 include::05_building_block_view.adoc[]
 
 <<<<
-// 6. Laufzeitsicht
-include::06_runtime_view.adoc[]
+// 6. Querschnittliche Konzepte
+include::06_concepts.adoc[]
 
 <<<<
-// 7. Verteilungssicht
-include::07_deployment_view.adoc[]
+// 7. Entscheidungen
+include::07_architecture_decisions.adoc[]
 
 <<<<
-// 8. Querschnittliche Konzepte
-include::08_concepts.adoc[]
+// 08. Qualitätsanforderungen
+include:08_quality_requirements.adoc[]
 
 <<<<
-// 9. Entscheidungen
-include::09_architecture_decisions.adoc[]
+// 09. Risiken
+include::09_technical_risks.adoc[]
 
 <<<<
-// 10. Qualitätsanforderungen
-include:10_quality_requirements.adoc[]
-
-<<<<
-// 11. Risiken
-include::11_technical_risks.adoc[]
-
-<<<<
-// 12. Glossar
-include::12_glossary.adoc[]
+// 10. Glossar
+include::10_glossary.adoc[]

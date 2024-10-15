@@ -3,4 +3,48 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-solution-strategy]]
 == Lösungsstrategie
 
+Die Lösungsstrategie dieses Projekts basiert auf der Kombination von maschinellem Lernen (Support Vector Machine) und der Verarbeitung von EMG-Daten, um Handpositionen in Echtzeit auf einem Mikrocontroller (Arduino) zu klassifizieren. Im Folgenden werden die wichtigsten Aspekte der Lösungsstrategie beschrieben.
 
+=== Datenvorverarbeitung
+
+Der erste Schritt der Lösungsstrategie besteht in der Erfassung und Vorverarbeitung der EMG-Daten, die von Elektroden am Unterarm gesammelt werden. Die Daten werden über einen Analog-Digital-Wandler (ADC) in digitale Signale umgewandelt. Anschließend werden die Rohdaten normalisiert und gefiltert, um Rauschen zu minimieren und nur die relevanten Signale für die Handgesten zu extrahieren.
+
+1. **Bandpassfilterung**: 
+   Um den Bereich der Frequenzen, die mit Muskelbewegungen zusammenhängen, zu isolieren, wird ein Bandpassfilter auf die EMG-Daten angewendet. Dies reduziert das Rauschen und verbessert die Datenqualität für die nachfolgende Klassifikation.
+
+2. **Segmentierung**:
+   Die gefilterten Daten werden in Zeitfenster segmentiert, um die relevanten Merkmale für jedes Fenster zu extrahieren.
+
+=== Merkmalsextraktion
+
+Nach der Vorverarbeitung werden statistische Merkmale aus den EMG-Daten extrahiert. Diese Merkmale dienen als Grundlage für das Training des Support Vector Machine (SVM)-Modells.
+
+1. **Merkmale**: 
+   Zu den wichtigsten Merkmalen, die aus den EMG-Daten extrahiert werden, gehören der Mittelwert, die Varianz und andere statistische Kennzahlen, die für jede Zeitsequenz berechnet werden.
+
+2. **Merkmalsauswahl**: 
+   Um die Komplexität des Modells zu reduzieren und die Leistung zu maximieren, werden nur die aussagekräftigsten Merkmale für das Training der SVM verwendet.
+
+=== Modellentwicklung und -training
+
+Das SVM-Modell wird auf Basis der extrahierten Merkmale trainiert, um verschiedene Handpositionen (z.B. Faust geschlossen, Faust offen, Pinzettengriff) zu klassifizieren.
+
+1. **Training**:
+   - Das SVM-Modell wird mit einem bestehenden Datensatz trainiert, der verschiedene Handpositionen und die entsprechenden EMG-Daten enthält.
+   - Während des Trainingsprozesses wird die Genauigkeit des Modells kontinuierlich validiert und optimiert, um die bestmögliche Leistung zu erzielen.
+
+2. **Modellbewertung**:
+   - Die Leistung des Modells wird mit Metriken wie Genauigkeit, Präzision und Recall bewertet, um sicherzustellen, dass das Modell in der Lage ist, die verschiedenen Handgesten zuverlässig zu klassifizieren.
+
+=== Modell-Export und Integration auf Arduino
+
+Ein zentraler Teil der Lösungsstrategie ist die Implementierung des Modells auf einem Arduino, um die Klassifikation in Echtzeit durchzuführen. 
+
+**Aktueller Stand**: 
+Derzeit wird das trainierte SVM-Modell als `.pkl`-Datei (Pickle-Format) gespeichert, anstatt es direkt in C-Code für den Arduino zu exportieren. Der Export des Modells in das `.h`-Format (C-Code) mittels der Bibliothek `sklearn-porter` ist als zukünftiger Schritt geplant.
+
+1. **Modellexport (aktuell)**:
+   - Aktuell wird das trainierte SVM-Modell mit der Python-Bibliothek `joblib` als `.pkl`-Datei gespeichert. Diese Datei kann in anderen Python-Projekten wiederverwendet oder weiterverarbeitet werden:
+   ```python
+   import joblib
+   joblib.dump(svm_model, 'svm_model.pkl')

@@ -1,25 +1,31 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-introduction-and-goals]]
-==	Einführung und Ziele
+== Einführung und Ziele
 
-
+Dieses Projekt zielt darauf ab, ein Modell zur Klassifizierung von Handpositionen basierend auf Elektromyographie (EMG)-Daten zu entwickeln. Genauer gesagt wird eine Support Vector Machine (SVM) verwendet, um die elektrische Aktivität der Unterarmmuskeln zu analysieren und daraus verschiedene Handpositionen vorherzusagen. Das Endziel ist es, dieses Modell so zu optimieren, dass es auf einem Arduino eingesetzt werden kann, um Echtzeit-EMG-Daten zu klassifizieren und Handgesten zu erkennen.
 
 === Aufgabenstellung
 
+Die Hauptaufgabe dieses Projekts besteht darin, eine zuverlässige und performante Support Vector Machine (SVM) zur Klassifikation von Handpositionen anhand von EMG-Daten zu entwickeln. Die Daten werden durch Elektroden erfasst, die die elektrische Aktivität der Muskeln messen. Anschließend werden die Rohdaten verarbeitet, statistische Merkmale extrahiert und das Modell trainiert. Die Ergebnisse werden in ein C-Format exportiert, um das Modell auf einem Arduino zur Klassifizierung von Echtzeitdaten zu verwenden.
 
+- Implementierung einer Pipeline zur Vorverarbeitung der EMG-Daten (z.B. Filterung, Normalisierung)
+- Training und Validierung eines SVM-Modells basierend auf den extrahierten Merkmalen
+- Export des trainierten Modells in eine Form, die auf einem Arduino verwendet werden kann
+- Integration des Modells zur Echtzeit-Klassifikation auf dem Arduino
 
 === Qualitätsziele
 
-
+- **Genauigkeit**: Das Modell muss eine hohe Klassifikationsgenauigkeit bei der Bestimmung der Handpositionen erreichen, um im praktischen Einsatz verlässlich zu funktionieren.
+- **Leistung**: Das Modell muss effizient und schnell genug sein, um in Echtzeit auf einem ressourcenbeschränkten System wie dem Arduino zu laufen.
+- **Robustheit**: Das System muss auch unter schwierigen Bedingungen wie variierenden EMG-Signalen oder Rauschen stabil arbeiten.
+- **Portabilität**: Der erzeugte Code muss so optimiert sein, dass er leicht auf Mikrocontrollern wie dem Arduino eingesetzt werden kann.
 
 === Stakeholder
-
-
 
 [cols="1,1,2" options="header"]
 |===
 |Rolle |Kontakt |Erwartungshaltung
-| _<Rolle-1>_ | _<Kontakt-1>_ | _<Erwartung-1>_
-| _<Rolle-2>_ | _<Kontakt-2>_ | _<Erwartung-2>_ 
+| Projektleiter | Niklas Burczyk | Erfolgreiche Entwicklung eines SVM-Modells zur Handpositionsbestimmung basierend auf EMG-Daten. Umsetzung des Modells auf einem Arduino für Echtzeit-Anwendungen.
+| Endbenutzer | N/A | Ein funktionierendes System zur Erkennung von Handgesten in Echtzeit, das zuverlässig und leicht zu bedienen ist.
 |===

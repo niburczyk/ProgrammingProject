@@ -1,0 +1,25 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-concepts]]
+== Querschnittliche Konzepte
+
+=== Datenverarbeitung
+
+Die Datenverarbeitung ist ein zentraler Aspekt dieses Projekts. Sie umfasst die Schritte der Normalisierung, Segmentierung und Filterung der EMG-Daten, um sicherzustellen, dass die verwendeten Daten für die Klassifikation geeignet sind. Ein solider Datenverarbeitungsprozess ist entscheidend für die Genauigkeit und Zuverlässigkeit des Modells.
+
+=== Modelltraining und -bewertung
+
+Das Modelltraining ist der Prozess, bei dem das SVM-Modell auf den vorbereiteten EMG-Daten trainiert wird. Dies umfasst das Erlernen von Mustern in den Daten, die mit verschiedenen Handpositionen korrelieren. Die Bewertung des Modells erfolgt anhand von Metriken wie Genauigkeit, Präzision und Recall, um sicherzustellen, dass das Modell gut funktioniert und generalisierbar ist.
+
+=== Benutzerinteraktion
+
+Die Benutzerinteraktion ist ein wichtiges Konzept, da das System in Echtzeit auf EMG-Daten reagieren muss. Die Benutzeroberfläche des Arduino-Systems muss benutzerfreundlich gestaltet sein, um dem Benutzer eine klare Rückmeldung über die Klassifikation der Handpositionen zu geben. Ein intuitives Design fördert die Benutzerakzeptanz und die Effektivität des Systems.
+
+=== Portabilität und Integrationsfähigkeit
+
+Die Portabilität ist ein bedeutendes Konzept, da das entwickelte Modell auf verschiedenen Hardwareplattformen (wie Arduino) betrieben werden soll. Die Integrationsfähigkeit gewährleistet, dass das System problemlos in andere Anwendungen oder Umgebungen integriert werden kann, wodurch die Flexibilität und der Nutzen des Projekts erhöht werden.
+
+=== Wartbarkeit
+
+Wartbarkeit bezieht sich auf die Leichtigkeit, mit der das System aktualisiert, angepasst oder repariert werden kann. Eine modulare Codebasis, umfassende Dokumentation und automatisierte Tests sind entscheidend, um sicherzustellen, dass das System auch nach der ursprünglichen Implementierung leicht zu warten ist. 
+

@@ -1,0 +1,51 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-glossary]]
+== Glossar
+
+[cols="e,2e" options="header"]
+|===
+| Begriff | Definition
+
+| EMG (Elektromyographie)
+| Ein Verfahren zur Messung der elektrischen Aktivität der Muskeln, das zur Analyse und Klassifikation von Muskelaktivitäten verwendet wird.
+
+| SVM (Support Vector Machine)
+| Ein überwachtes Machine-Learning-Modell, das für Klassifikations- und Regressionsaufgaben verwendet wird und sich auf die Maximierung der Trennung zwischen verschiedenen Klassen konzentriert.
+
+| Kernel
+| Eine Funktion, die es SVMs ermöglicht, in höherdimensionalen Räumen zu arbeiten, ohne dass die Daten tatsächlich dorthin transformiert werden müssen. Dadurch kann eine nichtlineare Trennung der Daten ermöglicht werden.
+
+| Normalisierung
+| Der Prozess der Anpassung der Werte in einem Datensatz auf einen einheitlichen Maßstab, um Verzerrungen zu vermeiden und die Analyse zu erleichtern.
+
+| Segmentierung
+| Die Aufteilung eines kontinuierlichen Datensatzes (z. B. EMG-Daten) in kleinere, analysierbare Teile oder Abschnitte, die jeweils bestimmte Merkmale enthalten.
+
+| Bandpassfilter
+| Ein elektronischer Filter, der nur Frequenzen innerhalb eines bestimmten Bereichs (Band) durchlässt und Frequenzen außerhalb dieses Bereichs dämpft.
+
+| Modellbewertung
+| Der Prozess der Analyse der Leistung eines Machine-Learning-Modells anhand von verschiedenen Metriken, um seine Genauigkeit, Präzision und Zuverlässigkeit zu bestimmen.
+
+| Portabilität
+| Die Fähigkeit eines Softwaremodells, auf verschiedenen Plattformen oder Systemen zu laufen, ohne dass signifikante Änderungen am Code erforderlich sind.
+
+| Wartbarkeit
+| Die Leichtigkeit, mit der ein Software-System aktualisiert, angepasst oder repariert werden kann, häufig gefördert durch sauberen, gut strukturierten und dokumentierten Code.
+
+| Feature (Merkmal)
+| Eine einzelne messbare Eigenschaft oder Charakteristik eines Datensatzes, die zur Klassifikation oder Regression verwendet wird, z. B. Mittelwert, Varianz oder Frequenzinhalt der EMG-Daten.
+
+| Hyperparameter
+| Parameter, die vor dem Training eines Machine-Learning-Modells festgelegt werden und die Struktur und das Verhalten des Modells beeinflussen, z. B. die Wahl des Kernels in einer SVM oder die Anzahl der Bäume in einem Random Forest.
+
+| Training
+| Der Prozess, bei dem ein Machine-Learning-Modell auf einem Datensatz trainiert wird, um Muster zu lernen und Vorhersagen zu treffen. Dies geschieht durch Anpassung der Modellparameter auf Basis der Eingabedaten und deren zugehörigen Labels.
+
+| Validierung
+| Der Prozess der Beurteilung eines Modells während oder nach dem Training, um seine Leistung auf einem unabhängigen Datensatz zu testen und Überanpassung zu vermeiden.
+
+| Überanpassung (Overfitting)
+| Ein Phänomen, bei dem ein Modell zu komplex ist und die Trainingsdaten zu genau lernt, was zu schlechter Leistung bei neuen, unsichtbaren Daten führt.
+|===

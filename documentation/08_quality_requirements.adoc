@@ -1,0 +1,48 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-quality-scenarios]]
+== Qualitätsanforderungen
+
+.Weiterführende Informationen
+Siehe https://docs.arc42.org/section-10/[Qualitätsanforderungen] in der online-Dokumentation (auf Englisch!).
+
+=== Qualitätsbaum
+
+*Der Qualitätsbaum zeigt die hierarchische Struktur der Qualitätsanforderungen. Die obersten Ziele können in spezifischere Qualitätsmerkmale unterteilt werden, um sicherzustellen, dass alle Aspekte abgedeckt sind.*
+
+- **Funktionale Qualität**  
+  - Korrektheit: Das System muss die Handpositionen zuverlässig klassifizieren.
+  - Vollständigkeit: Das System sollte alle vorgesehenen Handpositionen erfassen können.
+
+- **Nicht-funktionale Qualität**
+  - Leistung: Die Klassifikation sollte in Echtzeit erfolgen (z.B. innerhalb von 100 ms).
+  - Zuverlässigkeit: Das System sollte eine hohe Verfügbarkeit haben und in 85 % der Fälle korrekt klassifizieren.
+  - Benutzbarkeit: Die Benutzeroberfläche sollte intuitiv und leicht verständlich sein.
+
+- **Technische Qualität**
+  - Wartbarkeit: Der Code sollte modular und gut dokumentiert sein, um zukünftige Anpassungen zu erleichtern.
+  - Portabilität: Das System sollte auf verschiedenen Hardwareplattformen (z.B. Arduino) problemlos betrieben werden können.
+
+=== Qualitätsszenarien
+
+1. **Szenario 1: Echtzeit-Klassifikation der Handpositionen**  
+   - **Beschreibung**: Das System erfasst EMG-Daten in Echtzeit, klassifiziert die Handposition und gibt die Ergebnisse über die serielle Schnittstelle aus. 
+   - **Qualitätsmerkmale**: 
+     - Leistung: <100 ms Reaktionszeit für die Klassifikation.
+     - Zuverlässigkeit: 95 % Genauigkeit bei der Klassifikation der Handpositionen.
+   - **Akzeptanzkriterien**: Das System muss in 90 % der Fälle innerhalb von 100 ms eine Klassifikation liefern.
+
+2. **Szenario 2: Robustheit bei variierenden EMG-Daten**  
+   - **Beschreibung**: Das System soll auch unter verschiedenen Bedingungen (z.B. unterschiedlicher Muskelspannung, Rauschen) stabil klassifizieren.
+   - **Qualitätsmerkmale**:
+     - Robustheit: Das Modell soll nicht von der Qualität der EMG-Daten abhängen.
+     - Fehlerresistenz: Das System sollte in der Lage sein, auch bei Rauschen oder unvollständigen Daten eine Klassifikation vorzunehmen.
+   - **Akzeptanzkriterien**: Die Klassifikation sollte auch bei 20 % Rauschen in den EMG-Daten eine Genauigkeit von mindestens 85 % erreichen.
+
+3. **Szenario 3: Benutzerfreundlichkeit der Schnittstelle**  
+   - **Beschreibung**: Die Benutzeroberfläche des Arduino-Programms sollte einfach zu bedienen sein und klare Rückmeldungen geben.
+   - **Qualitätsmerkmale**:
+     - Benutzbarkeit: Die Benutzeroberfläche sollte in weniger als 5 Minuten erlernt werden können.
+     - Zugänglichkeit: Informationen über den aktuellen Status der Klassifikation sollten jederzeit verfügbar sein.
+   - **Akzeptanzkriterien**: Mindestens 80 % der Benutzer sollten die Schnittstelle als intuitiv und benutzerfreundlich bewerten.
+

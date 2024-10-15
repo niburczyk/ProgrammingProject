@@ -1,0 +1,46 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-design-decisions]]
+== Architekturentscheidungen
+
+=== 1. Wahl des Machine Learning Modells
+
+**Entscheidung**: Es wurde entschieden, eine Support Vector Machine (SVM) für die Klassifikation der Handpositionen auf Basis von EMG-Daten zu verwenden.
+
+**Begründung**: 
+* SVMs haben sich in der Vergangenheit als effektiv bei der Verarbeitung von hochdimensionalen Daten erwiesen und sind gut geeignet für Klassifikationsprobleme mit klaren Margen zwischen den Klassen.
+* Die Fähigkeit der SVM, nichtlineare Entscheidungsgrenzen zu modellieren, ist vorteilhaft, da die Beziehung zwischen EMG-Daten und Handpositionen komplex sein kann.
+
+=== 2. Datenverarbeitung und -vorverarbeitung
+
+**Entscheidung**: Die EMG-Daten werden vor der Klassifikation normalisiert, segmentiert und bandpassgefiltert.
+
+**Begründung**:
+* Normalisierung ist erforderlich, um die Daten auf einen gemeinsamen Maßstab zu bringen und die Auswirkungen von Rauschen zu minimieren.
+* Segmentierung ermöglicht eine detailliertere Analyse der EMG-Signale und fördert die Extraktion relevanter Merkmale.
+* Bandpassfilterung hilft, nur die Frequenzen zu extrahieren, die für die Handpositionsklassifikation relevant sind, und reduziert Störgeräusche.
+
+=== 3. Verwendung von Python für die Modellentwicklung
+
+**Entscheidung**: Python wurde als Hauptprogrammiersprache für die Entwicklung des SVM-Modells und die Datenverarbeitung gewählt.
+
+**Begründung**: 
+* Python bietet eine Vielzahl von leistungsstarken Bibliotheken (z.B. `scikit-learn`, `numpy`, `pandas`), die die Entwicklung von Machine Learning-Modellen und die Datenmanipulation erheblich erleichtern.
+* Die große Community und die umfangreiche Dokumentation machen es einfacher, Unterstützung und Ressourcen zu finden.
+
+=== 4. Export des Modells für die Verwendung auf dem Arduino
+
+**Entscheidung**: Das trainierte SVM-Modell wird als `.pkl`-Datei gespeichert und zur Verwendung auf dem Arduino in C-Code konvertiert.
+
+**Begründung**:
+* Die Verwendung von `joblib` zur Speicherung des Modells ermöglicht eine einfache Wiederverwendbarkeit und Integration in andere Python-Projekte.
+* Der Export in C-Code ermöglicht die Ausführung des Modells auf der ressourcenbegrenzten Arduino-Plattform, was die Portabilität und die Anwendbarkeit des Systems erhöht.
+
+=== 5. Modularer Codeansatz
+
+**Entscheidung**: Der Code wurde modular strukturiert, um die Wartbarkeit und Erweiterbarkeit zu fördern.
+
+**Begründung**: 
+* Ein modularer Ansatz erleichtert die Anpassung und Erweiterung des Systems, z.B. wenn neue Handpositionen hinzugefügt oder Änderungen an den Algorithmen vorgenommen werden müssen.
+* Eine klare Trennung von Funktionen (z.B. Datenverarbeitung, Modelltraining, Klassifikation) erhöht die Lesbarkeit und Testbarkeit des Codes.
+

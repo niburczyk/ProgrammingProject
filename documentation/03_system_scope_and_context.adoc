@@ -3,22 +3,40 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-system-scope-and-context]]
 == Kontextabgrenzung
 
-
+Dieser Abschnitt beschreibt die fachlichen und technischen Schnittstellen des Systems, das in diesem Projekt entwickelt wird. Es geht um die Interaktion des Systems mit externen Komponenten und die Abgrenzung zu anderen Systemen.
 
 === Fachlicher Kontext
 
+Das System ist darauf ausgelegt, Handgesten anhand von EMG-Daten zu erkennen und diese in Echtzeit zu klassifizieren. Der Hauptprozess beginnt mit der Datenerfassung über Elektroden am Unterarm, gefolgt von der Datenverarbeitung und der Klassifikation der Handpositionen (z.B. Faust geschlossen, Faust offen, Pinzettengriff). Das Ergebnis der Klassifikation wird entweder auf einem externen Display angezeigt oder zur Steuerung eines anderen Geräts verwendet (z.B. einer Prothese oder eines Roboters).
 
+**Fachliche Schnittstellen**:
 
-**<Diagramm und/oder Tabelle>**
+[cols="1,1,2" options="header"]
+|===
+| Externes System | Schnittstellenname | Beschreibung 
+| EMG-Sensoren | Sensor-Input | Liefert die Roh-EMG-Daten vom Unterarm, die als Eingabe für das System verwendet werden.
+| Externe Anzeige/Roboter | Klassifikationsergebnis | Gibt die klassifizierte Handposition als Steuerbefehl oder Information an externe Systeme aus (z.B. Arduino-Display, Robotersteuerung).
+|===
 
-**<optional: Erläuterung der externen fachlichen Schnittstellen>**
+**Erläuterung der externen fachlichen Schnittstellen**:
+- Die EMG-Sensoren erfassen die elektrische Aktivität der Muskeln und liefern Rohdaten. Diese Daten werden im System verarbeitet und zur Klassifikation verwendet.
+- Die Ausgabe des Systems ist die erkannte Handposition, die entweder an eine externe Anzeige ausgegeben oder zur Steuerung eines externen Geräts (wie z.B. eines Roboters) verwendet wird.
 
 === Technischer Kontext
 
+Das System wird auf einem ressourcenbeschränkten Mikrocontroller (Arduino) ausgeführt und verwendet eine Reihe von Tools zur Modellentwicklung und Vorverarbeitung. Technisch gesehen umfasst das System mehrere Hauptkomponenten, darunter die Verarbeitung der EMG-Daten, die Extraktion von Merkmalen, das Trainieren des Modells sowie den Export des Modells auf den Arduino.
 
+**Technische Schnittstellen**:
 
-**<Diagramm oder Tabelle>**
+[cols="1,1,2" options="header"]
+|===
+| Externe Komponente | Schnittstellenname | Beschreibung 
+| EMG-Sensoren | ADC (Analog-Digital-Wandler) | Die analogen EMG-Signale werden vom Arduino über einen ADC in digitale Daten umgewandelt.
+| SVM-Modell | C-Header (`svm_model.h`) | Das in Python entwickelte und exportierte SVM-Modell wird als C-Code auf dem Arduino eingebunden.
+| Externes Gerät/Anzeige | UART/Serial | Die erkannte Handposition wird über die serielle Schnittstelle des Arduino an ein externes Gerät oder eine Anzeige gesendet.
+|===
 
-**<optional: Erläuterung der externen technischen Schnittstellen>**
+**Mapping fachliche auf technische Schnittstellen**:
+- Die **EMG-Sensoren** (fachliche Schnittstelle) liefern Daten an den **ADC des Arduino** (technische Schnittstelle), der diese Daten digitalisiert.
+- Die **Klassifikationsergebnisse** (fachliche Schnittstelle) werden über **UART/Serial** (technische Schnittstelle) an externe Geräte oder Anzeigen gesendet.
 
-**<Mapping fachliche auf technische Schnittstellen>**

@@ -3,4 +3,31 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-architecture-constraints]]
 == Randbedingungen
 
+In diesem Abschnitt werden die architekturellen Randbedingungen beschrieben, die das Design und die Implementierung des Projekts beeinflussen. Diese Randbedingungen resultieren aus technischen, organisatorischen oder regulatorischen Vorgaben.
+
+=== Technische Randbedingungen
+
+1. **Einsatz eines Arduino**: 
+   Das trainierte SVM-Modell muss auf einem Arduino lauffähig sein. Dies stellt besondere Anforderungen an den Speicherbedarf, die Rechenleistung und die Effizienz des Modells. Ein ressourcenbeschränktes System wie der Arduino verfügt nur über begrenzte Rechenkapazitäten und Speicher, weshalb die Größe und Komplexität des Modells entsprechend optimiert werden müssen.
+
+2. **Verwendung von EMG-Daten**: 
+   EMG-Daten sind in der Regel verrauscht und variieren stark zwischen einzelnen Personen und Aufnahmen. Daher ist eine robuste Vorverarbeitung der Daten erforderlich, einschließlich Filterung und Normalisierung, um verlässliche Merkmale für das SVM-Modell zu extrahieren.
+
+3. **Modellexport in C-Code**: 
+   Das trainierte SVM-Modell muss in C-Code konvertiert werden, um auf dem Arduino eingesetzt werden zu können. Dies wird durch die Bibliothek `sklearn-porter` realisiert, die eine direkte Übersetzung von Modellen in C erlaubt. Die Architektur muss daher die Kompatibilität mit dieser Bibliothek sicherstellen.
+
+4. **Echtzeitfähigkeit**: 
+   Die Klassifikation der EMG-Daten muss in Echtzeit erfolgen. Dies erfordert, dass sowohl die Vorverarbeitung der Daten als auch die Anwendung des Modells auf dem Arduino so optimiert werden, dass sie innerhalb der gegebenen Zeitrahmen ablaufen.
+
+=== Organisatorische Randbedingungen
+
+1. **Open-Source-Nutzung**: 
+   Das Projekt verwendet freie und offene Bibliotheken wie `scikit-learn` und `joblib`. Dies erleichtert die Verfügbarkeit und Wartung des Projekts, kann jedoch durch Lizenzbestimmungen und Updates beeinflusst werden.
+
+2. **Projektstruktur**: 
+   Das Projekt muss in einer leicht verständlichen und dokumentierten Weise strukturiert sein, um anderen Entwicklern die Möglichkeit zu geben, es weiterzuentwickeln oder anzupassen. Der Quellcode und die Dokumentation sollten klar gegliedert sein, damit zukünftige Arbeiten oder Wartungen effizient durchgeführt werden können.
+
+=== Regulatorische Randbedingungen
+
+Bei der Entwicklung von Anwendungen, die auf medizinische Daten wie EMG-Daten zugreifen, könnten Datenschutz- und Sicherheitsanforderungen relevant sein. Auch wenn dieses Projekt in erster Linie als Entwicklungs- und Prototyping-Projekt betrachtet wird, sollten in zukünftigen Implementierungen mögliche gesetzliche Anforderungen in Betracht gezogen werden, insbesondere im Hinblick auf den Schutz persönlicher Daten.
 

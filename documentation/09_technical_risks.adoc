@@ -1,0 +1,38 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-technical-risks]]
+== Risiken und technische Schulden
+
+=== Risiken
+
+1. **Datenqualität**: 
+   *Die Genauigkeit und Zuverlässigkeit des SVM-Modells hängen stark von der Qualität der EMG-Daten ab. Rauschen und Artefakte in den Daten können zu fehlerhaften Klassifikationen führen.*
+
+2. **Modellüberanpassung**: 
+   *Wenn das SVM-Modell zu stark auf die Trainingsdaten angepasst ist, kann dies zu einer schlechten Generalisierbarkeit auf neue, unbekannte Daten führen. Dies ist besonders kritisch, wenn das System in realen Anwendungsszenarien eingesetzt wird.*
+
+3. **Echtzeitanforderungen**: 
+   *Die Klassifikation der Handpositionen muss in Echtzeit erfolgen, was eine effiziente Verarbeitung erfordert. Verzögerungen können die Benutzererfahrung erheblich beeinträchtigen und die Anwendung unbrauchbar machen.*
+
+4. **Hardwareabhängigkeit**: 
+   *Das System ist auf spezifische Hardwarekomponenten (z.B. Arduino, Elektroden) angewiesen. Probleme mit der Hardware oder Inkompatibilitäten können die Leistung des Systems beeinträchtigen.*
+
+5. **Benutzerschnittstelle**: 
+   *Eine unzureichende oder nicht benutzerfreundliche Schnittstelle kann zu Verwirrung führen und die Akzeptanz des Systems beeinträchtigen. Ein intuitives Design ist entscheidend für den Erfolg der Anwendung.*
+
+=== Technische Schulden
+
+1. **Dokumentation**: 
+   *Unzureichende Dokumentation des Codes und der Architektur kann die Wartung des Systems erschweren. Eine klare und umfassende Dokumentation sollte fortlaufend aktualisiert werden, um technische Schulden zu vermeiden.*
+
+2. **Modularität des Codes**: 
+   *Falls der Code nicht modular und gut strukturiert ist, kann dies die Erweiterung und Anpassung des Systems in der Zukunft erschweren. Technische Schulden in der Codebasis können die Implementierung neuer Funktionen oder Änderungen komplizierter machen.*
+
+3. **Fehlende Tests**: 
+   *Unzureichende Testabdeckung kann dazu führen, dass Fehler unentdeckt bleiben, was die Zuverlässigkeit des Systems gefährdet. Automatisierte Tests sollten eingeführt werden, um die Qualität des Systems sicherzustellen.*
+
+4. **Abhängigkeiten von Bibliotheken**: 
+   *Das System ist möglicherweise auf spezifische externe Bibliotheken angewiesen (z.B. `joblib`, `sklearn-porter`). Änderungen oder das Eintreten von Inkompatibilitäten in diesen Bibliotheken können Probleme verursachen. Regelmäßige Updates und Überprüfungen sollten eingeplant werden.*
+
+5. **Technologische Überalterung**: 
+   *Die verwendeten Technologien und Tools könnten in Zukunft veraltet sein. Ein fortlaufendes Monitoring der Technologien und eine rechtzeitige Migration auf aktuellere Standards sind notwendig, um technische Schulden zu vermeiden.*
