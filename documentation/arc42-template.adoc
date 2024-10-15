@@ -1,20 +1,20 @@
-// header file for arc42-template,
-// including all help texts
+// Header-Datei für das arc42-Template,
+// einschließlich aller Hilfetexte
 //
 // ====================================
 
-
-// configure DE settings for asciidoc
+// Konfiguration der DE-Einstellungen für Asciidoc
 include::config.adoc[]
 
+// Dokumenttitel und Metainformationen
 = Template
 :revnumber: 8.2 DE
 :revdate: Januar 2023
 :revremark: (basiert auf AsciiDoc Version)
-// toc-title definition MUST follow document title without blank line!
+// TOC-Titel muss dem Dokumenttitel ohne Leerzeile folgen!
 :toc-title: Inhaltsverzeichnis
 
-//additional style for arc42 help callouts
+// Zusätzlicher Stil für arc42-Hilfshinweise
 ifdef::backend-html5[]
 ++++
 <style>
@@ -29,16 +29,13 @@ ifdef::backend-html5[]
 ++++
 endif::backend-html5[]
 
-
+// Informationen über arc42
 include::about-arc42.adoc[]
 
-// horizontal line
+// Horizontale Linie
 ***
 
-
-
-
-// numbering from here on
+// Nummerierung ab hier
 :numbered:
 
 <<<<
@@ -70,11 +67,11 @@ include::06_concepts.adoc[]
 include::07_architecture_decisions.adoc[]
 
 <<<<
-// 08. Qualitätsanforderungen
-include:08_quality_requirements.adoc[]
+// 8. Qualitätsanforderungen
+include::08_quality_requirements.adoc[]
 
 <<<<
-// 09. Risiken
+// 9. Risiken
 include::09_technical_risks.adoc[]
 
 <<<<
