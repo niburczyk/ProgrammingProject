@@ -1,10 +1,12 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
-import seaborn as sns  # Für eine bessere Visualisierung der Konfusionsmatrix
+import seaborn as sns
 import joblib  # Für das Speichern und Laden des Modells
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 # Pfad zur CSV-Datei
 csv_file_path = './training_dataset.csv'
@@ -16,12 +18,32 @@ data = pd.read_csv(csv_file_path)
 features = data.iloc[:, :-1].values  # Alle Spalten außer der letzten
 labels = data.iloc[:, -1].values    # Die letzte Spalte
 
+# Standardisierung der Features
+scaler = StandardScaler()
+features = scaler.fit_transform(features)
+
+# Optional: PCA zur Reduzierung der Dimensionen (falls notwendig)
+pca = PCA(n_components=2)  # Wir reduzieren auf 2 Dimensionen für die Visualisierung
+features = pca.fit_transform(features)
+
 # Aufteilen der Daten in Trainings- und Testsets
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
 
-# SVM-Modell trainieren
-svm_model = SVC(kernel='rbf')
-svm_model.fit(X_train, y_train)
+# Hyperparameter-Optimierung mit GridSearchCV
+param_grid = {
+    'C': [0.1, 1, 10, 100],  # Regularisierungsparameter
+    'gamma': ['scale', 'auto', 0.1, 1, 10],  # Einflussbereich des RBF-Kernels
+    'kernel': ['rbf', 'poly'],  # Wählen zwischen RBF und Polynomial
+    'degree': [3, 4, 5, 6]  # Nur für den Poly-Kernel relevant
+}
+
+# GridSearchCV für die Auswahl der besten Hyperparameter
+grid_search = GridSearchCV(SVC(class_weight='balanced'), param_grid, cv=5, n_jobs=-1)
+grid_search.fit(X_train, y_train)
+
+# Beste Parameter und Modell
+print(f"Beste Parameter: {grid_search.best_params_}")
+svm_model = grid_search.best_estimator_
 
 # Vorhersagen auf den Testdaten
 y_pred = svm_model.predict(X_test)
@@ -45,7 +67,7 @@ plt.ylabel('True Label')
 plt.show()
 
 # Modell mit joblib speichern
-model_filename = 'svm_model.pkl'
+model_filename = 'svm_model_optimized.pkl'
 joblib.dump(svm_model, model_filename)
 print(f"SVM-Modell wurde als {model_filename} gespeichert.")
 

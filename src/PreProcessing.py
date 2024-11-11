@@ -62,7 +62,7 @@ if __name__ == "__main__":
     order = 4  # Filterordnung
 
     # Zeit in Sekunden, die entfernt werden soll
-    remove_time = 2
+    remove_time = 3
     remove_samples = remove_time * fs  # Anzahl der zu entfernenden Abtastwerte
 
     # Listen für Features und Labels
