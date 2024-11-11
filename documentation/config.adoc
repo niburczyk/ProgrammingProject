@@ -6,7 +6,7 @@
 // enable table-of-contents
 :toc:
 
-:doctype: article
+:doctype: Book
 
 :caution-caption: Achtung
 :important-caption: Wichtig

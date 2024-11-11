@@ -1,10 +1,10 @@
-= Arc42-Dokumentation für das Projekt "SVM zur Bestimmung von Handpositionen mittels EMG-Daten"
+= SVM zur Bestimmung von Handpositionen mittels EMG-Daten
 :revnumber: 2.0
 :revdate: November 2024
 :numbered:
 
 :toc-title: Inhaltsverzeichnis
-:toc: macro
+:toc:
 
 // Horizontaler Strich
 ***
