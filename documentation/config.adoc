@@ -6,7 +6,7 @@
 // enable table-of-contents
 :toc:
 
-:doctype: book
+:doctype: article
 
 :caution-caption: Achtung
 :important-caption: Wichtig
@@ -18,6 +18,3 @@
 :example-caption: Beispiel
 :figure-caption: Abbildung
 :table-caption: Tabelle
-
-// where are images located?
-:imagesdir: ./images

@@ -1,5 +1,3 @@
-ifndef::imagesdir[:imagesdir: ../images]
-
 [[section-introduction-and-goals]]
 == Einführung und Ziele
 
@@ -26,6 +24,6 @@ Die Hauptaufgabe dieses Projekts besteht darin, eine zuverlässige und performan
 [cols="1,1,2" options="header"]
 |===
 |Rolle |Kontakt |Erwartungshaltung
-| Projektleiter | Niklas Burczyk | Erfolgreiche Entwicklung eines SVM-Modells zur Handpositionsbestimmung basierend auf EMG-Daten. Umsetzung des Modells auf einem Arduino für Echtzeit-Anwendungen.
+| Projektleiter und Entwickler| Niklas Burczyk | Erfolgreiche Entwicklung eines SVM-Modells zur Handpositionsbestimmung basierend auf EMG-Daten. Umsetzung des Modells auf einem Arduino für Echtzeit-Anwendungen.
 | Endbenutzer | N/A | Ein funktionierendes System zur Erkennung von Handgesten in Echtzeit, das zuverlässig und leicht zu bedienen ist.
 |===

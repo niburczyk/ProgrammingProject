@@ -1,11 +1,5 @@
-ifndef::imagesdir[:imagesdir: ../images]
-
 [[section-quality-scenarios]]
 == Qualitätsanforderungen
-
-.Weiterführende Informationen
-Siehe https://docs.arc42.org/section-10/[Qualitätsanforderungen] in der online-Dokumentation (auf Englisch!).
-
 === Qualitätsbaum
 
 *Der Qualitätsbaum zeigt die hierarchische Struktur der Qualitätsanforderungen. Die obersten Ziele können in spezifischere Qualitätsmerkmale unterteilt werden, um sicherzustellen, dass alle Aspekte abgedeckt sind.*
@@ -15,9 +9,8 @@ Siehe https://docs.arc42.org/section-10/[Qualitätsanforderungen] in der online-
   - Vollständigkeit: Das System sollte alle vorgesehenen Handpositionen erfassen können.
 
 - **Nicht-funktionale Qualität**
-  - Leistung: Die Klassifikation sollte in Echtzeit erfolgen (z.B. innerhalb von 100 ms).
   - Zuverlässigkeit: Das System sollte eine hohe Verfügbarkeit haben und in 85 % der Fälle korrekt klassifizieren.
-  - Benutzbarkeit: Die Benutzeroberfläche sollte intuitiv und leicht verständlich sein.
+  - Leistung: Die Klassifikation sollte in Echtzeit erfolgen (z.B. innerhalb von 100 ms).
 
 - **Technische Qualität**
   - Wartbarkeit: Der Code sollte modular und gut dokumentiert sein, um zukünftige Anpassungen zu erleichtern.
@@ -46,3 +39,4 @@ Siehe https://docs.arc42.org/section-10/[Qualitätsanforderungen] in der online-
      - Zugänglichkeit: Informationen über den aktuellen Status der Klassifikation sollten jederzeit verfügbar sein.
    - **Akzeptanzkriterien**: Mindestens 80 % der Benutzer sollten die Schnittstelle als intuitiv und benutzerfreundlich bewerten.
 
+*Die Qualitätsszenarien sind als Zenarien anzusehen, die in späteren Projekten umgesetzt werden könnten.*

@@ -1,59 +1,30 @@
 = Arc42-Dokumentation für das Projekt "SVM zur Bestimmung von Handpositionen mittels EMG-Daten"
-:revnumber: 1.0
-:revdate: Oktober 2024
+:revnumber: 2.0
+:revdate: November 2024
+:numbered:
+
 :toc-title: Inhaltsverzeichnis
+:toc: macro
 
 // Horizontaler Strich
 ***
 
-:numbered:
-
-<<<<
-# 1. Anforderungen und Ziele
-*Einführung in die Anforderungen und Ziele des Projekts*
 include::01_introduction_and_goals.adoc[]
 
-<<<<
-# 2. Randbedingungen
-*Definition der Rahmenbedingungen, die das Projekt beeinflussen*
 include::02_architecture_constraints.adoc[]
 
-<<<<
-# 3. Kontextabgrenzung
-*Abgrenzung des Systems vom Kontext und Identifikation relevanter Schnittstellen*
 include::03_system_scope_and_context.adoc[]
 
-<<<<
-# 4. Lösungsstrategie
-*Beschreibung der gewählten Lösungsansätze und Strategien*
 include::04_solution_strategy.adoc[]
 
-<<<<
-# 5. Bausteinsicht
-*Detaillierte Ansicht der Systembausteine und deren Interaktionen*
 include::05_building_block_view.adoc[]
 
-<<<<
-# 6. Querschnittliche Konzepte
-*Übergreifende Konzepte, die im gesamten System Anwendung finden*
 include::06_concepts.adoc[]
 
-<<<<
-# 7. Entscheidungen
-*Dokumentation wichtiger Architekturentscheidungen und deren Begründung*
 include::07_architecture_decisions.adoc[]
 
-<<<<
-# 8. Qualitätsanforderungen
-*Definition der Qualitätsmerkmale, die das System erfüllen muss*
 include::08_quality_requirements.adoc[]
 
-<<<<
-# 9. Risiken
-*Identifikation und Bewertung technischer Risiken des Projekts*
 include::09_technical_risks.adoc[]
 
-<<<<
-# 10. Glossar
-*Begriffsdefinitionen für die im Projekt verwendeten Terminologien*
 include::10_glossary.adoc[]

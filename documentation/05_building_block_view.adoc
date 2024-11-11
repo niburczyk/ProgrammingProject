@@ -1,13 +1,7 @@
-ifndef::imagesdir[:imagesdir: ../images]
-
 [[section-building-block-view]]
 == Bausteinsicht
 
 === Whitebox Gesamtsystem
-
-_**<Übersichtsdiagramm>**_  
-*Hier könnte ein Diagramm dargestellt werden, das die Gesamtarchitektur des Systems zeigt, einschließlich der EMG-Datenquelle, der Datenverarbeitungseinheit, des SVM-Modells und des Arduino. Diagramme können mit Tools wie Lucidchart oder Draw.io erstellt werden.*
-
 Begründung:: _Das Gesamtsystem ermöglicht die Echtzeitklassifikation von Handpositionen basierend auf EMG-Daten. Die modulare Architektur sorgt für Flexibilität und einfache Wartung._
 
 Enthaltene Bausteine:: 
@@ -17,38 +11,18 @@ Enthaltene Bausteine::
 - **SVM-Modell**: Klassifiziert die Handpositionen basierend auf den extrahierten Merkmalen.
 - **Arduino-Integration**: Steuert die Echtzeitklassifikation und die Ausgabe der Ergebnisse.
 
-Wichtige Schnittstellen:: 
-- **Schnittstelle zwischen EMG-Datenakquisition und Datenverarbeitung**: Überträgt die erfassten Rohdaten.
-- **Schnittstelle zwischen Merkmalextraktionsmodul und SVM-Modell**: Gibt die extrahierten Merkmale zur Klassifikation weiter.
-- **Schnittstelle zwischen SVM-Modell und Arduino**: Überträgt die klassifizierten Ergebnisse für die Nutzung in Echtzeitanwendungen.
-
 ==== Datenakquisitionsmodul
 
 _**Zweck/Verantwortung:**_ Erfassung der EMG-Daten über Elektroden am Unterarm.
-
-_**Schnittstelle(n):**_ Datenübertragung an das Datenverarbeitungsmodul (z.B. über UART oder I2C).
 
 ==== Datenverarbeitungsmodul
 
 _**Zweck/Verantwortung:**_ Vorverarbeitung der EMG-Daten, um Rauschen zu minimieren und relevante Informationen zu extrahieren.
 
-_**Schnittstelle(n):**_ Nimmt Rohdaten vom Datenakquisitionsmodul entgegen und gibt vorverarbeitete Daten an das Merkmalextraktionsmodul weiter.
-
 ==== Merkmalextraktionsmodul
 
 _**Zweck/Verantwortung:**_ Extraktion relevanter statistischer Merkmale aus den vorverarbeiteten EMG-Daten.
 
-_**Schnittstelle(n):**_ Erhält vorverarbeitete Daten vom Datenverarbeitungsmodul und gibt Merkmale an das SVM-Modell weiter.
-
 ==== SVM-Modell
 
 _**Zweck/Verantwortung:**_ Klassifikation der Handpositionen basierend auf den extrahierten Merkmalen.
-
-_**Schnittstelle(n):**_ Nimmt Merkmale vom Merkmalextraktionsmodul entgegen und gibt Klassifikationsergebnisse zurück.
-
-==== Arduino-Integration
-
-_**Zweck/Verantwortung:**_ Implementierung des SVM-Modells zur Echtzeitklassifikation von Handpositionen.
-
-_**Schnittstelle(n):**_ Erhält Klassifikationsergebnisse und sendet sie an die Benutzeroberfläche oder andere Aktuatoren.
-

@@ -1,9 +1,7 @@
-ifndef::imagesdir[:imagesdir: ../images]
-
 [[section-architecture-constraints]]
 == Randbedingungen
 
-In diesem Abschnitt werden die architekturellen Randbedingungen beschrieben, die das Design und die Implementierung des Projekts beeinflussen. Diese Randbedingungen resultieren aus technischen, organisatorischen oder regulatorischen Vorgaben.
+In diesem Abschnitt werden die architekturellen Randbedingungen beschrieben, die das Design und die Implementierung des Projekts beeinflussen. Diese Randbedingungen resultieren aus technischen, organisatorischen oder regulatorischen Vorgaben. Bestimmte Bedingungen sind zum jetzgen Stand des Projektes noch nicht final.
 
 === Technische Randbedingungen
 
