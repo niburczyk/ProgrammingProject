@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Pfade
 csv_file_path = './training_dataset.csv'
-model_filename = 'svm_model_optimized_lda.pkl'
+model_filename = 'svm_model_optimized.pkl'
 
 # Prüfen, ob das Modell existiert
 if os.path.exists(model_filename):
