@@ -1,111 +1,109 @@
-import os  # Für Dateiprüfungen
+import os
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-import joblib  # Für das Speichern und Laden des Modells
+import joblib
 from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
 
-# Pfad zur CSV-Datei
+# Pfade
 csv_file_path = './training_dataset.csv'
+model_filename = 'svm_model_optimized_lda.pkl'
 
-# Pfad zur gespeicherten Modelldatei
-model_filename = 'svm_model_optimized.pkl'
-
-# Prüfen, ob das Modell bereits gespeichert wurde
+# Prüfen, ob das Modell existiert
 if os.path.exists(model_filename):
     # Modell laden
     svm_model_loaded = joblib.load(model_filename)
     print(f"Gespeichertes Modell '{model_filename}' geladen.")
 
-    # Optional: Testdaten erneut einlesen, um Ergebnisse zu überprüfen
+    # Daten erneut einlesen für Evaluation
     data = pd.read_csv(csv_file_path)
-    features = data.iloc[:, :-1].values  # Alle Spalten außer der letzten
-    labels = data.iloc[:, -1].values    # Die letzte Spalte
+    features = data.iloc[:, :-1].values
+    labels = data.iloc[:, -1].values
 
-    # Standardisierung der Features
+    # Standardisierung
     scaler = StandardScaler()
     features = scaler.fit_transform(features)
 
-    # Optional: PCA zur Reduzierung der Dimensionen (falls notwendig)
-    pca = PCA(n_components=2)  # Wir reduzieren auf 2 Dimensionen für die Visualisierung
-    features = pca.fit_transform(features)
+    # ===== WÄHLE HIER PCA/LDA FÜR DIE EVALUATION =====
+    use_lda_for_eval = True
 
-    # Aufteilen der Daten in Trainings- und Testsets
+    if use_lda_for_eval:
+        lda = LDA(n_components=min(len(set(labels)) - 1, features.shape[1]))
+        features = lda.fit_transform(features, labels)
+    else:
+        pca = PCA(n_components=2)
+        features = pca.fit_transform(features)
+
+    # Testdaten (gleiche Aufteilung wie beim Training)
     _, X_test, _, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
 
-    # Vorhersagen auf den Testdaten mit dem geladenen Modell
+    # Evaluation
     y_pred = svm_model_loaded.predict(X_test)
-
-    # Ergebnisse auswerten
-    print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-    print("Classification Report:")
+    print(f"Accuracy (geladenes Modell): {accuracy_score(y_test, y_pred) * 100:.2f}%")
     print(classification_report(y_test, y_pred))
 
-    # Konfusionsmatrix visualisieren
-    conf_matrix = confusion_matrix(y_test, y_pred)
+    # Confusion Matrix
     plt.figure(figsize=(10, 7))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=set(labels), yticklabels=set(labels))
+    sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues', 
+                xticklabels=set(labels), yticklabels=set(labels))
     plt.title('Confusion Matrix (Geladenes Modell)')
-    plt.xlabel('Predicted Label')
-    plt.ylabel('True Label')
     plt.show()
 
 else:
     # Daten einlesen
     data = pd.read_csv(csv_file_path)
+    features = data.iloc[:, :-1].values
+    labels = data.iloc[:, -1].values
 
-    # Die letzte Spalte ist das Label
-    features = data.iloc[:, :-1].values  # Alle Spalten außer der letzten
-    labels = data.iloc[:, -1].values    # Die letzte Spalte
-
-    # Standardisierung der Features
+    # Standardisierung
     scaler = StandardScaler()
     features = scaler.fit_transform(features)
 
-    # Optional: PCA zur Reduzierung der Dimensionen (falls notwendig)
-    pca = PCA(n_components=2)  # Wir reduzieren auf 2 Dimensionen für die Visualisierung
-    features = pca.fit_transform(features)
+    # ===== WÄHLE HIER PCA ODER LDA =====
+    use_lda = False  # True für LDA, False für PCA
 
-    # Aufteilen der Daten in Trainings- und Testsets
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
+    if use_lda:
+        lda = LDA(n_components=min(len(set(labels)) - 1, features.shape[1]))
+        features_reduced = lda.fit_transform(features, labels)
+    else:
+        pca = PCA(n_components=2)
+        features_reduced = pca.fit_transform(features)
 
-    # Hyperparameter-Optimierung mit GridSearchCV
+    # Train/Test-Split
+    X_train, X_test, y_train, y_test = train_test_split(features_reduced, labels, test_size=0.3, random_state=42)
+
+    # Hyperparameter-Tuning
     param_grid = {
-        'C': [0.1, 1, 10, 100],  # Regularisierungsparameter
-        'gamma': ['scale', 'auto', 0.1, 1, 10],  # Einflussbereich des RBF-Kernels
-        'kernel': ['rbf', 'poly'],  # Wählen zwischen RBF und Polynomial
-        'degree': [3, 4, 5, 6]  # Nur für den Poly-Kernel relevant
+        'C': [0.1, 1, 10, 100],
+        'gamma': ['scale', 'auto', 0.1, 1, 10],
+        'kernel': ['rbf', 'poly'],
+        'degree': [3, 4, 5, 6]  # Nur für poly relevant
     }
 
-    # GridSearchCV für die Auswahl der besten Hyperparameter
     grid_search = GridSearchCV(SVC(class_weight='balanced'), param_grid, cv=5, n_jobs=-1)
     grid_search.fit(X_train, y_train)
 
-    # Beste Parameter und Modell
-    print(f"Beste Parameter: {grid_search.best_params_}")
+    # Bestes Modell
     svm_model = grid_search.best_estimator_
+    print(f"Beste Parameter: {grid_search.best_params_}")
 
-    # Vorhersagen auf den Testdaten
+    # Evaluation
     y_pred = svm_model.predict(X_test)
-
-    # Ergebnisse auswerten
     print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-    print("Classification Report:")
     print(classification_report(y_test, y_pred))
 
-    # Konfusionsmatrix visualisieren
-    conf_matrix = confusion_matrix(y_test, y_pred)
+    # Confusion Matrix
     plt.figure(figsize=(10, 7))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=set(labels), yticklabels=set(labels))
+    sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues',
+                xticklabels=set(labels), yticklabels=set(labels))
     plt.title('Confusion Matrix')
-    plt.xlabel('Predicted Label')
-    plt.ylabel('True Label')
     plt.show()
 
-    # Modell mit joblib speichern
+    # Modell speichern
     joblib.dump(svm_model, model_filename)
-    print(f"SVM-Modell wurde als {model_filename} gespeichert.")
+    print(f"Modell als '{model_filename}' gespeichert.")
