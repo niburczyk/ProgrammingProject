@@ -20,21 +20,13 @@ def bandpass_filter(data, lowcut, highcut, fs, order):
     y = filtfilt(b, a, data, axis=0)
     return y
 
-# Funktion zum Berechnen des Mittelwerts
-def calculate_mean(data):
-    return np.mean(data, axis=0)
+# Funktion zur Berechnung des Mean Absolute Value (MAV)
+def calculate_mav(data):
+    return np.mean(np.abs(data), axis=0)
 
-# Funktion zur Berechnung des Median
-def calculate_median(data):
-    return np.median(data, axis=0)
-
-# Funktion zur Berechnung der Standardabweichung
-def claculate_std(data):
-    return np.std(data, axis=0)
-
-# Funktion zur Berechnung der Varianz
-def calculate_variance(data):
-    return np.var(data, axis=0)
+# Funktion zur Berechnung der Waveform Length (WL)
+def calculate_wl(data):
+    return np.sum(np.abs(np.diff(data, axis=0)), axis=0)
 
 # Funktion zum Darstellen des Signals
 def plot_signal(original_data, filtered_data, title):
@@ -87,17 +79,15 @@ if __name__ == "__main__":
                     # Anwenden des Bandpassfilters auf jeden Vektor (jede Spalte)
                     filtered_data = bandpass_filter(data, lowcut, highcut, fs, order)
 
-                    # Kürzen der Werte 2 Sekunden vorne und 2 Sekunden hinten
-                    filtered_data = np.abs(filtered_data[remove_samples:-remove_samples])
+                    # Kürzen der Werte 3 Sekunden vorne und 3 Sekunden hinten
+                    filtered_data = filtered_data[remove_samples:-remove_samples]
 
-                    # Berechnen des Mittelwerts und Median für jeden Vektor
-                    mean_vector = calculate_mean(filtered_data)
-                    median_vector = calculate_median(filtered_data)
-                    standard_deviation_vector = claculate_std(filtered_data)
-                    variance_vector = calculate_variance(filtered_data)
+                    # Berechnen der Merkmale (MAV und WL) für jeden Kanal
+                    mav_vector = calculate_mav(filtered_data)
+                    wl_vector = calculate_wl(filtered_data)
 
-                    # Kombinieren der Mittelwert- und Median-Vektoren
-                    feature_vector = np.concatenate((median_vector, mean_vector))
+                    # Kombinieren der Merkmalsvektoren
+                    feature_vector = np.concatenate((mav_vector, wl_vector))
 
                     # Bestimmen der Bewegung aus dem Dateinamen oder Ordnernamen
                     if 'F' in condition_folder:
@@ -124,11 +114,15 @@ if __name__ == "__main__":
 
     # Erstellen eines DataFrames für die Features und Labels
     df = pd.DataFrame(features)
+    # Benennen der Spalten für bessere Lesbarkeit
+    num_channels = len(mav_vector)  # Anzahl der EMG-Kanäle
+    column_names = [f'MAV_{i+1}' for i in range(num_channels)] + [f'WL_{i+1}' for i in range(num_channels)]
+    df.columns = column_names
     df['label'] = encoded_labels
 
     # Speichern der Features und Labels in eine CSV-Datei
     df.to_csv('training_dataset.csv', index=False)
-    print("Training dataset saved as 'training_dataset.csv'.")
+    print("Training dataset with MAV and WL features saved as 'training_dataset.csv'.")
 
     # Optional: Beispielhafte Darstellung eines Signals
     if len(features) > 0:
@@ -137,5 +131,5 @@ if __name__ == "__main__":
         mat_data = read_mat_file(example_file_path)
         data = mat_data['data']
         filtered_data = bandpass_filter(data, lowcut, highcut, fs, order)
-        filtered_data = np.abs(filtered_data[remove_samples:-remove_samples])
+        filtered_data = filtered_data[remove_samples:-remove_samples]
         plot_signal(data, filtered_data, os.path.splitext(example_filename)[0])
