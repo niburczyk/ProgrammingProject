@@ -4,13 +4,25 @@ Dieses Projekt beinhaltet den Quellcode und die Dokumentation zur Entwicklung ei
 
 ## Inhaltsverzeichnis
 
-- [Installation](#installation)
-- [Datenbeschreibung](#datenbeschreibung)
-- [Modellentwicklung](#modellentwicklung)
-- [Modell Speicherung](#modell-speicherung)
-- [Modell-Export](#modell-export)
-- [Verwendung auf dem Arduino](#verwendung-auf-dem-arduino)
-- [Autoren](#autoren)
+- [ProgrammingProject: SVM zur Bestimmung von Handpositionen mittels EMG-Daten](#programmingproject-svm-zur-bestimmung-von-handpositionen-mittels-emg-daten)
+  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
+  - [Projektstruktur](#projektstruktur)
+  - [Installation](#installation)
+  - [Datenbeschreibung](#datenbeschreibung)
+  - [Modellentwicklung](#modellentwicklung)
+  - [Modell-Speicherung](#modell-speicherung)
+  - [Verwendung auf dem Arduino](#verwendung-auf-dem-arduino)
+  - [Autoren](#autoren)
+
+## Projektstruktur
+.
+├── docs/                   # Arc42-Dokumentation
+├── model/                  # Serialisierte Modelle
+├── sample/                 # Rohdaten
+├── scripts/                # Verarbeitungsskripte
+├── src/                    # Hauptanwendung
+├── include/                # Exportierte Modelle (C/C++)
+└── tests/                  # Unit-Tests
 
 ## Installation
 
@@ -36,7 +48,8 @@ Die EMG-Daten stammen von Elektroden, die am Unterarm platziert sind und die ele
    - `.\sample\Condition-F`: In diesem Ordner befinden sich die Rohdaten der Kondition F, diese beschreibt Faust geschlossen (F = Fist) 
    - `.\sample\Condition-O`: In diesem Ordner befinden sich die Rohdaten der Kondition O, diese beschreibt Faust offen (O = Open) 
    - `.\sample\Condition-P`: In diesem Ordner befinden sich die Rohdaten der Kondition P, diese beschreibt den Pinzettengriff (P = Pinch) 
-- `training_dataset.csv`: Eine CSV-Datei mit den entsprechenden Trainingsdaten, diese beinhaltet die features sowie die labels.
+- `.\data`: in diesem Order befindet sich die .csv welche als Datensatz verwendet wird.
+|  - `training_dataset.csv`: Eine CSV-Datei mit den entsprechenden Trainingsdaten, diese beinhaltet die features sowie die labels.
 
 ## Modellentwicklung
 
@@ -71,24 +84,6 @@ import joblib
 model_filename = 'svm_model.pkl'
 joblib.dump(svm_model, model_filename)
 ````
-
-## Modell-Export
-Das trainierte SVM-Modell kann in ein format exportiert werden, das auf einem Arduino verwendet werden kann. Hierzu kann die Bibliothek `sklearn-porter` verwendet werden, um das Modell in C-Code zu konvertieren.
-
-```
-pip install sklearn-porter
-```
-
-```python
-from sklearn_porter import Porter
-
-# Annahme: 'model' ist das trainierte SVM-Modell
-porter = Porter(model, language='c')
-output = porter.export(embed_data=True)
-
-with open('svm_model.h', 'w') as file:
-    file.write(output)
-```
 
 ## Verwendung auf dem Arduino
 
