@@ -16,13 +16,26 @@ Dieses Projekt beinhaltet den Quellcode und die Dokumentation zur Entwicklung ei
 
 ## Projektstruktur
 .
-├── docs/                   # Arc42-Dokumentation
-├── model/                  # Serialisierte Modelle
-├── sample/                 # Rohdaten
-├── scripts/                # Verarbeitungsskripte
-├── src/                    # Hauptanwendung
-├── include/                # Exportierte Modelle (C/C++)
-└── tests/                  # Unit-Tests
+├── docs/                       # Arc42-Dokumentation
+│   ├── architecture.md         # Systemarchitektur
+│   └── decisions.md            # Entwurfsentscheidungen
+├── model/
+│   └── svm_model_optimized.pkl # Serialisiertes SVM-Modell
+├── sample/                     # Roh-EMG-Daten
+│   ├── Condition-F/            # Faust geschlossen
+│   ├── Condition-O/            # Hand offen  
+│   └── Condition-P/            # Pinzettengriff
+├── data/
+│   └── training_dataset.csv    # Aufbereiteter Trainingsdatensatz
+├── scripts/                    # Python-Skripte
+│   ├── GenerateSVM.py          # Haupttrainingsskript
+│   ├── PreProcessing.py        # Datenvorverarbeitung
+│   └── ConvertSvmToHeader.py   # Modell-Export für Arduino
+├── include/
+│   └── svm_predict_poly.cpp    # Exportierte SVM-Implementierung
+├── src/                        # Hauptanwendungscode
+├── tests/                      # Unit-Tests
+└──
 
 ## Installation
 
