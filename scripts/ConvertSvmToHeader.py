@@ -2,7 +2,7 @@ import joblib
 import numpy as np
 
 # === Pfad zum Modell ===
-model_path = "svm_model_optimized.pkl"
+model_path = "model\svm_model_optimized.pkl"
 scaler_path = "scaler.pkl"  # Optional, falls separat gespeichert
 
 # === Modell und Preprocessing laden ===
