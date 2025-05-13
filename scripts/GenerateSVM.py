@@ -16,6 +16,8 @@ csv_file_path = './sample/data/training_dataset.csv'
 # Dateinamen für das Modell und den Scaler
 model_filename = './model/svm_model_optimized.pkl'
 scaler_filename = './model/scaler.pkl'
+pca_filename = './model/pca_components.pkl'
+
 
 # Prüfen, ob das Modell existiert
 if os.path.exists(model_filename):
@@ -114,3 +116,13 @@ else:
 
     joblib.dump(scaler, scaler_filename)
     print(f"Scaler als '{scaler_filename}' gespeichert.")
+
+    pca_components = {
+    'components': pca.components_,
+    'explained_variance': pca.explained_variance_,
+    'mean': pca.mean_}
+
+    joblib.dump(pca_components, pca_filename)
+    print(f"PCA-Komponenten als '{pca_filename}' gespeichert.")
+    
+

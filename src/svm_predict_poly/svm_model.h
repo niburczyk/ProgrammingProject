@@ -28,6 +28,14 @@ const float gamma = 10.0000000000;
 const float coef0 = 0.000000;
 const int degree = 6;
 
+// === PCA Komponenten ===
+const float pca_components[2][2] = {
+    {0.707107, 0.707107},
+    {-0.707107, 0.707107}
+};
+const float pca_explained_variance[2] = { 1.962733, 0.059006 };
+const float pca_mean[2] = { -0.000000, -0.000000 };
+
 // === Scaler Parameter ===
 const float scaler_mean[2] = { 0.000160, 0.097490 };
 const float scaler_scale[2] = { 0.000484, 0.303631 };

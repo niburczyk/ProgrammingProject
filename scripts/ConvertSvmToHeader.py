@@ -1,11 +1,12 @@
 import joblib
 import numpy as np
 
-# === Pfad zum Modell ===
+# === Pfad zum Modell und PCA ===
 model_path = "./model/svm_model_optimized.pkl"
 scaler_path = "./model/scaler.pkl"
+pca_path = "./model/pca_components.pkl"
 
-# === Modell und Preprocessing laden ===
+# === Modell, Preprocessing und PCA laden ===
 model = joblib.load(model_path)
 try:
     scaler = joblib.load(scaler_path)
@@ -13,6 +14,9 @@ try:
 except:
     scaler = None
     has_scaler = False
+
+# PCA Komponenten laden
+pca_components = joblib.load(pca_path)
 
 # === Modellparameter extrahieren ===
 support_vectors = model.support_vectors_
@@ -56,6 +60,12 @@ header += array_to_c("class_labels", class_labels.astype(int), dtype="int")
 header += f"\nconst float gamma = {gamma:.10f};\n"
 header += f"const float coef0 = {coef0:.6f};\n"
 header += f"const int degree = {degree};\n"
+
+# PCA-Komponenten in die Header-Datei einfügen
+header += "\n// === PCA Komponenten ===\n"
+header += array_to_c("pca_components", pca_components['components'])
+header += array_to_c("pca_explained_variance", pca_components['explained_variance'])
+header += array_to_c("pca_mean", pca_components['mean'])
 
 if has_scaler:
     header += "\n// === Scaler Parameter ===\n"
