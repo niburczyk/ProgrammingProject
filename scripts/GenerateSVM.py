@@ -117,12 +117,7 @@ else:
     joblib.dump(scaler, scaler_filename)
     print(f"Scaler als '{scaler_filename}' gespeichert.")
 
-    pca_components = {
-    'components': pca.components_,
-    'explained_variance': pca.explained_variance_,
-    'mean': pca.mean_}
-
-    joblib.dump(pca_components, pca_filename)
+    joblib.dump(pca, pca_filename)
     print(f"PCA-Komponenten als '{pca_filename}' gespeichert.")
     
 
