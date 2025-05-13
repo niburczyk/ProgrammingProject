@@ -6,9 +6,6 @@ const unsigned long restDuration = 10000; // Ruhephase in ms
 const unsigned long sampleInterval = 1;   // 1000 Hz Samplingrate
 const int windowSize = 100;  // Fenstergröße für den gleitenden Mittelwert
 
-const float scaler_mean[2] = { MAV_MEAN, WL_MEAN };
-const float scaler_scale[2] = { MAV_STD, WL_STD };
-
 unsigned long startTime;
 unsigned long lastSampleTime = 0;
 
