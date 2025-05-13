@@ -39,10 +39,12 @@ float calculate_wl() {
 }
 
 // Standardisierung der Eingabewerte basierend auf der Ruhephase
-void normalize_input(float* input) {
-    for (int i = 0; i < vector_length; ++i) {
-        input[i] = (input[i] - scaler_mean[i]) / scaler_scale[i];
+float* normalize_input(float input[]) {
+    static float normalized[2]; // static für Rückgabe als Zeiger
+    for (int i = 0; i < 2; i++) {
+        normalized[i] = (input[i] - scaler_mean[i]) / scaler_scale[i];
     }
+    return normalized;
 }
 
 // Polynomieller Kernel
@@ -147,11 +149,8 @@ void loop() {
         // Eingabewerte für das SVM-Modell (MAV und WL)
         float x_input[vector_length] = {mav, wl};
 
-        // Normalisierung der Eingabewerte basierend auf dem Ruhemittelwert
-        normalize_input(x_input);
-
-        // Vorhersage treffen
-        int prediction = svm_predict(x_input);
+        // Vorhersage treffen und vorher normalisierung der Eingabewerte basierend auf dem Ruhemittelwert
+        int prediction = svm_predict( normalize_input(x_input););
 
         // Ausgabe der Vorhersage
         Serial.print("Vorhergesagte Klasse: ");
