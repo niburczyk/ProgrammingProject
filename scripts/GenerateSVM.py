@@ -34,7 +34,7 @@ if os.path.exists(model_filename):
         features = scaler_loaded.transform(features)
 
     # ===== WÄHLE HIER PCA/LDA FÜR DIE EVALUATION =====
-    use_lda_for_eval = True
+    use_lda_for_eval = False
 
     if use_lda_for_eval:
         lda = LDA(n_components=min(len(set(labels)) - 1, features.shape[1]))
