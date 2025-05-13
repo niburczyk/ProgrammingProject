@@ -10,24 +10,28 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
 
-# Pfade
-csv_file_path = './training_dataset.csv'
-model_filename = 'svm_model_optimized.pkl'
+# Pfad zum CSV (Training-Daten)
+csv_file_path = './sample/data/training_dataset.csv'
+
+# Dateinamen für das Modell und den Scaler
+model_filename = './model/svm_model_optimized.pkl'
+scaler_filename = './model/scaler.pkl'
 
 # Prüfen, ob das Modell existiert
 if os.path.exists(model_filename):
-    # Modell laden
+    # Modell und Scaler laden
     svm_model_loaded = joblib.load(model_filename)
-    print(f"Gespeichertes Modell '{model_filename}' geladen.")
+    scaler_loaded = joblib.load(scaler_filename) if os.path.exists(scaler_filename) else None
+    print(f"Gespeichertes Modell '{model_filename}' und Scaler '{scaler_filename}' geladen.")
 
     # Daten erneut einlesen für Evaluation
     data = pd.read_csv(csv_file_path)
     features = data.iloc[:, :-1].values
     labels = data.iloc[:, -1].values
 
-    # Standardisierung
-    scaler = StandardScaler()
-    features = scaler.fit_transform(features)
+    # Falls ein Scaler geladen wurde, standardisieren
+    if scaler_loaded:
+        features = scaler_loaded.transform(features)
 
     # ===== WÄHLE HIER PCA/LDA FÜR DIE EVALUATION =====
     use_lda_for_eval = True
@@ -104,6 +108,9 @@ else:
     plt.title('Confusion Matrix')
     plt.show()
 
-    # Modell speichern
+    # Modell und Scaler speichern
     joblib.dump(svm_model, model_filename)
     print(f"Modell als '{model_filename}' gespeichert.")
+
+    joblib.dump(scaler, scaler_filename)
+    print(f"Scaler als '{scaler_filename}' gespeichert.")
