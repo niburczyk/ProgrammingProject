@@ -2,6 +2,7 @@
 #define SVM_MODEL_H
 
 #include <Arduino.h>
+#include <avr/pgmspace.h>
 
 const int n_classes = 3;
 const int n_support_vectors = 8;
