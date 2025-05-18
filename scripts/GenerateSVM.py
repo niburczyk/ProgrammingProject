@@ -10,34 +10,30 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
 
-# Pfad zum CSV (Training-Daten)
+# === Datei- und Modellpfade ===
 csv_file_path = './sample/data/training_dataset.csv'
-
-# Dateinamen für das Modell und den Scaler
 model_filename = './model/svm_model_optimized.pkl'
 scaler_filename = './model/scaler.pkl'
 pca_filename = './model/pca_components.pkl'
 
-
-# Prüfen, ob das Modell existiert
+# === Prüfen, ob Modell bereits existiert ===
 if os.path.exists(model_filename):
-    # Modell und Scaler laden
+    # Modell & Scaler laden
     svm_model_loaded = joblib.load(model_filename)
     scaler_loaded = joblib.load(scaler_filename) if os.path.exists(scaler_filename) else None
     print(f"Gespeichertes Modell '{model_filename}' und Scaler '{scaler_filename}' geladen.")
 
-    # Daten erneut einlesen für Evaluation
+    # Daten laden
     data = pd.read_csv(csv_file_path)
     features = data.iloc[:, :-1].values
     labels = data.iloc[:, -1].values
 
-    # Falls ein Scaler geladen wurde, standardisieren
+    # Skalierung
     if scaler_loaded:
         features = scaler_loaded.transform(features)
 
-    # ===== WÄHLE HIER PCA/LDA FÜR DIE EVALUATION =====
+    # PCA oder LDA
     use_lda_for_eval = False
-
     if use_lda_for_eval:
         lda = LDA(n_components=min(len(set(labels)) - 1, features.shape[1]))
         features = lda.fit_transform(features, labels)
@@ -45,34 +41,39 @@ if os.path.exists(model_filename):
         pca = PCA(n_components=2)
         features = pca.fit_transform(features)
 
-    # Testdaten (gleiche Aufteilung wie beim Training)
-    _, X_test, _, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
+    # Testdaten-Split
+    _, X_test, _, y_test = train_test_split(featudann res, labels, test_size=0.3, random_state=42)
 
-    # Evaluation
+    # Modell-Evaluation auf Testdaten
     y_pred = svm_model_loaded.predict(X_test)
-    print(f"Accuracy (geladenes Modell): {accuracy_score(y_test, y_pred) * 100:.2f}%")
+    print(f"\nAccuracy (geladenes Modell): {accuracy_score(y_test, y_pred) * 100:.2f}%")
     print(classification_report(y_test, y_pred))
 
-    # Confusion Matrix
+    # Confusion-Matrix
     plt.figure(figsize=(10, 7))
-    sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues', 
+    sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues',
                 xticklabels=set(labels), yticklabels=set(labels))
     plt.title('Confusion Matrix (Geladenes Modell)')
     plt.show()
 
+    # ==== GESAMTDATENSATZ VALIDIEREN ====
+    print("\n==== Klassenvorhersage auf dem gesamten Datensatz ====")
+    full_predictions = svm_model_loaded.predict(features)
+    for true_label, pred_label in zip(labels, full_predictions):
+        print(f"Tatsächlich: {true_label} -> Vorhergesagt: {pred_label}")
+
 else:
-    # Daten einlesen
+    # === Neues Training ===
     data = pd.read_csv(csv_file_path)
     features = data.iloc[:, :-1].values
     labels = data.iloc[:, -1].values
 
-    # Standardisierung
+    # Skalierung
     scaler = StandardScaler()
     features = scaler.fit_transform(features)
 
-    # ===== WÄHLE HIER PCA ODER LDA =====
-    use_lda = False  # True für LDA, False für PCA
-
+    # PCA oder LDA
+    use_lda = False
     if use_lda:
         lda = LDA(n_components=min(len(set(labels)) - 1, features.shape[1]))
         features_reduced = lda.fit_transform(features, labels)
@@ -88,7 +89,7 @@ else:
         'C': [0.1, 1, 10, 100],
         'gamma': ['scale', 'auto', 0.1, 1, 10],
         'kernel': ['rbf', 'poly'],
-        'degree': [3, 4, 5, 6]  # Nur für poly relevant
+        'degree': [3, 4, 5, 6]  # Nur für 'poly'
     }
 
     grid_search = GridSearchCV(SVC(class_weight='balanced'), param_grid, cv=5, n_jobs=-1)
@@ -96,21 +97,25 @@ else:
 
     # Bestes Modell
     svm_model = grid_search.best_estimator_
-    print(f"Beste Parameter: {grid_search.best_params_}")
+    print(f"\nBeste Parameter: {grid_search.best_params_}")
+    print("Modell-Typ:", type(svm_model))
+    print("decision_function_shape:", getattr(svm_model, 'decision_function_shape', 'Nicht vorhanden'))
+    print("dual_coef_.shape:", svm_model.dual_coef_.shape)
+    print("Anzahl Klassen:", len(svm_model.classes_))
 
     # Evaluation
     y_pred = svm_model.predict(X_test)
-    print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+    print(f"\nAccuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
     print(classification_report(y_test, y_pred))
 
-    # Confusion Matrix
+    # Confusion-Matrix
     plt.figure(figsize=(10, 7))
     sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues',
                 xticklabels=set(labels), yticklabels=set(labels))
     plt.title('Confusion Matrix')
     plt.show()
 
-    # Modell und Scaler speichern
+    # Modell und Parameter speichern
     joblib.dump(svm_model, model_filename)
     print(f"Modell als '{model_filename}' gespeichert.")
 
@@ -119,5 +124,3 @@ else:
 
     joblib.dump(pca, pca_filename)
     print(f"PCA-Komponenten als '{pca_filename}' gespeichert.")
-    
-
