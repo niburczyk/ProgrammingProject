@@ -42,7 +42,7 @@ if os.path.exists(model_filename):
         features = pca.fit_transform(features)
 
     # Testdaten-Split
-    _, X_test, _, y_test = train_test_split(featudann res, labels, test_size=0.3, random_state=42)
+    _, X_test, _, y_test = train_test_split(features res, labels, test_size=0.3, random_state=42)
 
     # Modell-Evaluation auf Testdaten
     y_pred = svm_model_loaded.predict(X_test)
