@@ -22,7 +22,7 @@ int svm_predict(const float* input) {
 
     for (int i = 0; i < n_classes; ++i) {
         for (int j = 0; j < n_support_vectors; ++j) {
-            float k = polynomial_kernel((const float*)support_vectors[j], input);
+            float k = rbf_kernel((const float*)support_vectors[j], input);
             decision[i] += dual_coef[i][j] * k;
         }
         decision[i] += intercept[i];
