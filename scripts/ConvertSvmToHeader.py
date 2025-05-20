@@ -1,5 +1,6 @@
 import joblib
 import numpy as np
+from sklearn.decomposition import PCA
 
 # === Pfad zum Modell und PCA ===
 model_path = "./model/svm_model_optimized.pkl"
@@ -63,9 +64,9 @@ header += f"const int degree = {degree};\n"
 
 # PCA-Komponenten in die Header-Datei einfügen
 header += "\n// === PCA Komponenten ===\n"
-header += array_to_c("pca_components", pca_components['components'])
-header += array_to_c("pca_explained_variance", pca_components['explained_variance'])
-header += array_to_c("pca_mean", pca_components['mean'])
+header += array_to_c("pca_components", pca_components.components_)
+header += array_to_c("pca_explained_variance", pca_components.explained_variance_)
+header += array_to_c("pca_mean", pca_components.mean_)
 
 if has_scaler:
     header += "\n// === Scaler Parameter ===\n"
