@@ -1,4 +1,5 @@
 import os
+import joblib
 import numpy as np
 from scipy.io import loadmat
 from scipy.signal import butter, filtfilt
@@ -94,6 +95,9 @@ df = pd.DataFrame(features)
 num_channels = features.shape[1] // 2
 df.columns = [f'MAV_{i+1}' for i in range(num_channels)] + [f'WL_{i+1}' for i in range(num_channels)]
 df['label'] = encoded_labels
+
+joblib.dump(label_encoder, './model/label_encoder.pkl')
+
 
 # === Speichern
 df.to_csv('training_dataset_windowed.csv', index=False)
