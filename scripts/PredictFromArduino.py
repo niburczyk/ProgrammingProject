@@ -2,7 +2,7 @@ import joblib
 import numpy as np
 from collections import deque
 from scipy.io import loadmat
-from scipy.signal import butter, sosfiltfilt
+from scipy.signal import firwin, lfilter
 import serial
 import time
 import matplotlib.pyplot as plt
@@ -29,12 +29,11 @@ except Exception as e:
     print("⚠️ Arduino konnte nicht verbunden werden:", e)
 
 # === Filterfunktion
-def bandpass_filter(data, lowcut, highcut, fs, order):
+def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
     nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    sos = butter(order, [low, high], btype='band', output='sos')
-    return sosfiltfilt(sos, data, axis=0)
+    taps = firwin(numtaps, [lowcut/nyq, highcut/nyq], pass_zero=False)
+    filtered = lfilter(taps, 1.0, data, axis=0)
+    return filtered[numtaps:]  # Verzögerung kompensieren
 
 # === Featurefunktionen
 def calculate_mav(sig):
@@ -136,7 +135,7 @@ else:
     # === Kein Arduino, lade Daten aus Datei
     print("ℹ️ Kein Arduino, lade Daten aus Datei.")
 
-    mat = loadmat('./sample/Condition-P/P20.mat')
+    mat = loadmat('./sample/Condition-F/F10_10.mat')
     fs = 2000  # Samplingrate sicherheitshalber nochmal setzen
     remove_seconds = 3
     remove_samples = remove_seconds * fs

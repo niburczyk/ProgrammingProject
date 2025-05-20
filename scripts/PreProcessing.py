@@ -2,17 +2,16 @@ import os
 import joblib
 import numpy as np
 from scipy.io import loadmat
-from scipy.signal import butter, filtfilt
+from scipy.signal import firwin, lfilter
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 
 # === Filter
-def bandpass_filter(data, lowcut, highcut, fs, order=4):
-    nyquist = 0.5 * fs
-    low = lowcut / nyquist
-    high = highcut / nyquist
-    b, a = butter(order, [low, high], btype='band')
-    return filtfilt(b, a, data, axis=0)
+def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
+    nyq = 0.5 * fs
+    taps = firwin(numtaps, [lowcut/nyq, highcut/nyq], pass_zero=False)
+    filtered = lfilter(taps, 1.0, data, axis=0)
+    return filtered[numtaps:]  # Verzögerung kompensieren
 
 # === Feature-Berechnungen
 def calculate_mav(data):
