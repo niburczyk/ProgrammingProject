@@ -1,11 +1,11 @@
 const int emgPin = A0;
 unsigned long lastSendTime = 0;
-const unsigned int sampleInterval = 5;  // 5 ms -> 200 Hz Samplingrate
+const unsigned int sampleInterval = 1;  // 1 ms -> 2000 Hz Samplingrate
 String prediction = "";
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial);  // Für Leonardo/Micro Boards
+  while (!Serial);
   delay(2000);
   Serial.println("Arduino bereit");
 }
