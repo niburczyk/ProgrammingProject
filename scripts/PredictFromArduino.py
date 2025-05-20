@@ -2,7 +2,7 @@ import joblib
 import numpy as np
 from collections import deque
 from scipy.io import loadmat
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter, sosfiltfilt
 import serial
 import time
 import matplotlib.pyplot as plt
@@ -33,8 +33,8 @@ def bandpass_filter(data, lowcut, highcut, fs, order):
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
-    b, a = butter(order, [low, high], btype='band')
-    return filtfilt(b, a, data, axis=0)
+    sos = butter(order, [low, high], btype='band', output='sos')
+    return sosfiltfilt(sos, data, axis=0)
 
 # === Featurefunktionen
 def calculate_mav(sig):
