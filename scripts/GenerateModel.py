@@ -9,9 +9,11 @@ import joblib
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
+from sklearn.model_selection import ParameterGrid
 
 # === Datei- und Modellpfade ===
-csv_file_path = './sample/data/training_dataset.csv'
+csv_file_path = './sample/data/training_dataset_windowed.csv'
 model_filename = './model/svm_model_optimized.pkl'
 scaler_filename = './model/scaler.pkl'
 pca_filename = './model/pca_components.pkl'
@@ -42,7 +44,7 @@ if os.path.exists(model_filename):
         features = pca.fit_transform(features)
 
     # Testdaten-Split
-    _, X_test, _, y_test = train_test_split(features res, labels, test_size=0.3, random_state=42)
+    _, X_test, _, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
 
     # Modell-Evaluation auf Testdaten
     y_pred = svm_model_loaded.predict(X_test)
@@ -68,59 +70,63 @@ else:
     features = data.iloc[:, :-1].values
     labels = data.iloc[:, -1].values
 
-    # Skalierung
     scaler = StandardScaler()
     features = scaler.fit_transform(features)
 
-    # PCA oder LDA
     use_lda = False
     if use_lda:
         lda = LDA(n_components=min(len(set(labels)) - 1, features.shape[1]))
         features_reduced = lda.fit_transform(features, labels)
     else:
-        pca = PCA(n_components=2)
+        pca = PCA(n_components=0.95)
         features_reduced = pca.fit_transform(features)
 
-    # Train/Test-Split
     X_train, X_test, y_train, y_test = train_test_split(features_reduced, labels, test_size=0.3, random_state=42)
 
-    # Hyperparameter-Tuning
-    param_grid = {
-        'C': [0.1, 1, 10, 100],
-        'gamma': ['scale', 'auto', 0.1, 1, 10],
-        'kernel': ['rbf', 'poly'],
-        'degree': [3, 4, 5, 6]  # Nur für 'poly'
-    }
+    param_grid = [
+        {
+            'kernel': ['rbf'],
+            'C': [0.1, 1, 10, 100],
+            'gamma': [0.001, 0.01, 0.1, 1, 'scale']
+        },
+        {
+            'kernel': ['poly'],
+            'C': [0.1, 1, 10],
+            'gamma': [0.001, 0.01, 'scale'],
+            'degree': [2, 3, 4]
+        }
+    ]
 
-    grid_search = GridSearchCV(SVC(class_weight='balanced'), param_grid, cv=5, n_jobs=-1)
+    svc = SVC(class_weight='balanced')
+    grid_search = GridSearchCV(
+        estimator=svc,
+        param_grid=param_grid,
+        cv=2,
+        n_jobs=9,
+        verbose=2          # 🛠 Zeige Fortschritt in Konsole
+    )
+
+    print("Starte GridSearchCV ...")
     grid_search.fit(X_train, y_train)
+    print("GridSearch abgeschlossen.")
 
-    # Bestes Modell
+    print(f"Bestes Ergebnis: {grid_search.best_score_:.4f}")
+    print(f"Beste Parameter: {grid_search.best_params_}")
+
     svm_model = grid_search.best_estimator_
-    print(f"\nBeste Parameter: {grid_search.best_params_}")
-    print("Modell-Typ:", type(svm_model))
-    print("decision_function_shape:", getattr(svm_model, 'decision_function_shape', 'Nicht vorhanden'))
-    print("dual_coef_.shape:", svm_model.dual_coef_.shape)
-    print("Anzahl Klassen:", len(svm_model.classes_))
 
-    # Evaluation
     y_pred = svm_model.predict(X_test)
     print(f"\nAccuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
     print(classification_report(y_test, y_pred))
 
-    # Confusion-Matrix
     plt.figure(figsize=(10, 7))
     sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues',
                 xticklabels=set(labels), yticklabels=set(labels))
     plt.title('Confusion Matrix')
     plt.show()
 
-    # Modell und Parameter speichern
+    # Speichern
     joblib.dump(svm_model, model_filename)
     print(f"Modell als '{model_filename}' gespeichert.")
-
     joblib.dump(scaler, scaler_filename)
-    print(f"Scaler als '{scaler_filename}' gespeichert.")
-
     joblib.dump(pca, pca_filename)
-    print(f"PCA-Komponenten als '{pca_filename}' gespeichert.")
