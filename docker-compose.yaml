@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  predictor:
+    build: .
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    volumes:
+      - ./model:/app/model
+      - ./sample:/app/sample
+      - ./src:/app/src
+      - ./data:/app/data
+    command: bash -c "./scripts/flash_arduino.sh && python3 PredictFromArduino.py"
+    tty: true

@@ -1,7 +1,8 @@
 const int emgPin = A0;
 unsigned long lastSendTime = 0;
-const unsigned int sampleInterval = 1;  // 1 ms -> 2000 Hz Samplingrate
-String prediction = "";
+const unsigned int sampleInterval = 1;  // 1 ms -> 1000 Hz Samplingrate
+String command = "";
+bool recording = false;
 
 void setup() {
   Serial.begin(9600);
@@ -13,21 +14,26 @@ void setup() {
 void loop() {
   unsigned long now = millis();
 
-  if (now - lastSendTime >= sampleInterval) {
+  if (recording && (now - lastSendTime >= sampleInterval)) {
     int emg = analogRead(emgPin);
-    Serial.println(emg);  // EMG Wert senden
+    Serial.println(emg);  // EMG-Wert senden
     lastSendTime = now;
   }
 
-  // Prediction vom Pi lesen, falls vorhanden
+  // Steuerbefehle vom Pi lesen
   while (Serial.available() > 0) {
     char c = Serial.read();
     if (c == '\n') {
-      Serial.print("Vorhersage vom Pi: ");
-      Serial.println(prediction);
-      prediction = "";
+      if (command == "START") {
+        recording = true;
+        Serial.println("Aufzeichnung gestartet");
+      } else if (command == "STOP") {
+        recording = false;
+        Serial.println("Aufzeichnung gestoppt");
+      }
+      command = "";
     } else {
-      prediction += c;
+      command += c;
     }
   }
 }
