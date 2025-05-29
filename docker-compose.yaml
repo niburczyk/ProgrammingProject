@@ -5,9 +5,9 @@ services:
     devices:
       - "/dev/ttyACM0:/dev/ttyACM0"
     volumes:
-      - ./model:/app/model
-      - ./sample:/app/sample
-      - ./src:/app/src
-      - ./data:/app/data
+      - ./model:/model
+      - ./sample:/sample
+      - ./src:/src
+      - ./data:/data
     command: bash -c "./scripts/flash_arduino.sh && python3 PredictFromArduino.py"
     tty: true
