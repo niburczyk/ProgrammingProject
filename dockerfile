@@ -11,6 +11,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY scripts/flash_arduino.sh ./scripts/
+RUN chmod +x ./scripts/flash_arduino.sh
+
 COPY . .
 
 RUN arduino-cli core update-index && \
