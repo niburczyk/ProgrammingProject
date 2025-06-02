@@ -35,23 +35,10 @@ Das Projekt basiert darauf, dass ein Raspberry Pi mit einem Arduino über die se
 
 4. Docker im Hintergrund starten:  
    ```bash
-   docker compose up --build -d
+   docker compose up --build
    ```
 
-5. Überprüfen, ob der Container läuft:  
-   ```bash
-   docker ps
-   ```
-
-6. Seriellen Monitor des Arduinos mit `minicom` öffnen:  
-   ```bash
-   minicom -b 9600 -D /dev/ttyACM0
-   ```
-
-7. Echo aktivieren, um Befehle einzugeben:  
-   Drücke `STRG + A`, dann `E` und bestätige mit `ENTER`.
-
-8. Aufnahme oder Vorhersage starten bzw. stoppen:  
+5. Aufnahme oder Vorhersage starten bzw. stoppen:  
    ```text
    START<ENTER>
    STOP<ENTER>
@@ -112,7 +99,7 @@ joblib.dump(svm_model, model_filename)
 
 Nach dem Training kann das Modell auf dem Raspberry Pi zur Vorhersage der EMG-Daten verwendet werden, die vom Arduino geliefert werden.
 
-Die Datei `emg_transmitter` sammelt die EMG-Daten und sendet sie an den Raspberry Pi, wo die Vorhersage durchgeführt wird. Die Ergebnisse werden über die serielle Schnittstelle wieder an den Arduino zurückgegeben.
+Die Datei `emg_transmitter` sammelt die EMG-Daten und sendet sie an den Raspberry Pi, wo die Vorhersage durchgeführt wird. Die Ergebnisse werden ausgegeben. Dies kann kann mit `START` bzw. `STOP`gesteuert werden.
 
 ## Autoren
 
