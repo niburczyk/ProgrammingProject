@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   predictor:
     build: .
@@ -9,5 +10,10 @@ services:
       - ./sample:/sample
       - ./src:/src
       - ./data:/data
-    command: bash -c "./scripts/flash_arduino.sh && python3 ./scripts/PredictFromArduino.py"
+    command: >
+      bash -c "
+        ./scripts/flash_arduino.sh &&
+        python3 ./scripts/PredictFromArduino.py &&
+        echo 'Öffne minicom...' &&
+        exec minicom -b 9600 -D /dev/ttyACM0"
     tty: true
