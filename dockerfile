@@ -21,7 +21,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy and set permissions on script
-RUN chmod +x ./scripts/flash_arduino.sh
+RUN chmod +x scripts/*.sh
 COPY scripts/flash_arduino.sh ./scripts/
 
 # Copy application code
