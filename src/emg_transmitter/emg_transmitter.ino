@@ -19,21 +19,4 @@ void loop() {
     Serial.println(emg);  // EMG-Wert senden
     lastSendTime = now;
   }
-
-  // Steuerbefehle vom Pi lesen
-  while (Serial.available() > 0) {
-    char c = Serial.read();
-    if (c == '\n') {
-      if (command == "START") {
-        recording = true;
-        Serial.println("Aufzeichnung gestartet");
-      } else if (command == "STOP") {
-        recording = false;
-        Serial.println("Aufzeichnung gestoppt");
-      }
-      command = "";
-    } else {
-      command += c;
-    }
-  }
 }

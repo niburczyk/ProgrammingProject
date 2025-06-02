@@ -1,10 +1,10 @@
 import joblib
 import numpy as np
-from collections import deque
 from scipy.signal import firwin, lfilter
 import serial
 import time
 import matplotlib.pyplot as plt
+import threading
 
 # === Lade Modell, Scaler, PCA, Label Encoder
 model = joblib.load('./model/svm_model_optimized.pkl')
@@ -40,18 +40,31 @@ def calculate_wl(sig):
     return np.sum(np.abs(np.diff(sig, axis=0)), axis=0)
 
 WINDOW_SIZE = 250
-STEP_SIZE = 125
 num_channels = None
+recording = False  # globaler Status
+
+def input_thread():
+    global recording
+    while True:
+        cmd = input("Eingabe (START/STOP): ").strip().upper()
+        if cmd == "START":
+            recording = True
+            print("▶️ Aufnahme gestartet.")
+        elif cmd == "STOP":
+            recording = False
+            print("⏹️ Aufnahme gestoppt.")
 
 def main():
+    global recording
     if not arduino:
         print("ℹ️ Kein Arduino verbunden, Programm beendet.")
         return
 
-    print("⚠️ Warte auf START Kommando vom Arduino über Serial...")
+    # Starte Eingabe-Thread
+    thread = threading.Thread(target=input_thread, daemon=True)
+    thread.start()
 
     buffer = []
-    recording = False
 
     plt.ion()
     fig, ax = plt.subplots()
@@ -68,30 +81,19 @@ def main():
             if not line:
                 continue
 
-            if line == "START":
-                print("▶️ Aufnahme gestartet.")
-                recording = True
-                buffer = []
-                continue
+            parts = line.split(',')
+            global num_channels
+            if num_channels is None:
+                num_channels = len(parts)
+                print(f"Anzahl Kanäle erkannt: {num_channels}")
 
-            if line == "STOP":
-                print("⏹️ Aufnahme gestoppt.")
-                recording = False
+            try:
+                sample = [float(x) for x in parts]  # funktioniert auch mit nur einem Wert
+            except ValueError:
+                print(f"⚠️ Ungültige Daten: {line}")
                 continue
 
             if recording:
-                parts = line.split(',')
-                global num_channels
-                if num_channels is None:
-                    num_channels = len(parts)
-                    print(f"Anzahl Kanäle erkannt: {num_channels}")
-
-                try:
-                    sample = [float(x) for x in parts]  # funktioniert auch mit nur einem Wert
-                except ValueError:
-                    print(f"⚠️ Ungültige Daten: {line}")
-                    continue
-
                 buffer.append(sample)
 
                 if len(buffer) >= WINDOW_SIZE:
@@ -109,12 +111,6 @@ def main():
                     class_label = label_encoder.inverse_transform([prediction])[0]
 
                     print(f"📣 Vorhersage: {class_label} ({prediction}) | MAV: {mav}, WL: {wl}")
-
-                    # Vorhersage an Arduino senden
-                    try:
-                        arduino.write(f"{prediction}\n".encode())
-                    except Exception as err:
-                        print("❌ Fehler beim Senden an Arduino:", err)
 
                     time_axis = np.arange(len(filtered)) / fs
                     line_signal.set_data(time_axis, filtered[:, 0])
