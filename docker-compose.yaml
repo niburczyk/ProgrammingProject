@@ -15,5 +15,5 @@ services:
         ./scripts/flash_arduino.sh &&
         python3 ./scripts/PredictFromArduino.py &&
         echo 'Öffne minicom...' &&
-        exec minicom -b 9600 -D /dev/ttyACM0"
+        exec minicom -b 9600 -D /dev/ttyACM1"
     tty: true
