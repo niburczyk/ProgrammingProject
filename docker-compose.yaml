@@ -4,7 +4,7 @@ services:
   predictor:
     build: .
     devices:
-      - "/dev/ttyACM0:/dev/ttyACM0"
+      - "/dev/ttyACM0:/dev/ttyACM1"
     volumes:
       - ./model:/model
       - ./sample:/sample
