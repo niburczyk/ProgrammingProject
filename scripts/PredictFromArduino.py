@@ -20,7 +20,7 @@ order = 4
 
 # === Arduino-Serielle Verbindung
 try:
-    arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
     time.sleep(2)
     print("✅ Arduino verbunden.")
 except Exception as e:
