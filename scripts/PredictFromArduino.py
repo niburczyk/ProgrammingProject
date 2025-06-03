@@ -45,6 +45,7 @@ recording = False  # globaler Status
 
 def input_thread():
     global recording
+    print("Eingabe-Thread gestartet, bitte START oder STOP eingeben.")
     while True:
         cmd = input("Eingabe (START/STOP): ").strip().upper()
         if cmd == "START":
@@ -77,7 +78,7 @@ def main():
 
     while True:
         try:
-            line = arduino.readline().decode('utf-8').strip()
+            line = arduino.readline().decode('utf-8', errors='ignore').strip()
             if not line:
                 continue
 
