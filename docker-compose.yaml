@@ -14,3 +14,4 @@ services:
         python3 ./scripts/PredictFromArduino.py
       "
     tty: true
+    stdin_open: true
