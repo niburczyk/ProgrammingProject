@@ -2,7 +2,7 @@ const int emgPin = A0;
 unsigned long lastSendTime = 0;
 const unsigned int sampleInterval = 1;  // 1 ms -> 1000 Hz Samplingrate
 String command = "";
-bool recording = false;
+bool recording = true;
 
 void setup() {
   Serial.begin(9600);
