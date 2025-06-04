@@ -33,12 +33,17 @@ Das Projekt basiert darauf, dass ein Raspberry Pi mit einem Arduino über die se
    chmod +x scripts/*.sh
    ```
 
-4. Docker installation starten:  
+4. Docker installation:  
+   ```bash
+   docker compose build
+   ```   
+   
+5. Docker starten:  
    ```bash
    docker compose run --rm predictor
    ```
 
-5. Aufnahme oder Vorhersage starten bzw. stoppen:  
+6. Aufnahme oder Vorhersage starten bzw. stoppen:  
    ```text
    s - Starten
    <space> - Beenden
