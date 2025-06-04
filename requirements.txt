@@ -2,5 +2,5 @@ pyserial
 numpy
 scipy
 joblib
-matplotlib
 scikit-learn
+keyboard

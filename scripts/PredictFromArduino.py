@@ -3,8 +3,10 @@ import numpy as np
 from scipy.signal import firwin, lfilter
 import serial
 import time
-import matplotlib.pyplot as plt
 import threading
+import keyboard
+import os
+from datetime import datetime
 
 # === Lade Modell, Scaler, PCA, Label Encoder
 model = joblib.load('./model/svm_model_optimized.pkl')
@@ -42,21 +44,41 @@ def calculate_wl(sig):
 WINDOW_SIZE = 250
 num_channels = None
 recording = False  # globaler Status
+buffer = []         # globaler Datenpuffer
+
+def save_buffer_to_file(buffer):
+    if not buffer:
+        print("⚠️ Kein Datenpuffer zum Speichern.")
+        return
+    os.makedirs('./data', exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"recorded_data_{timestamp}.txt"
+    filepath = os.path.join('./data', filename)
+    with open(filepath, 'w') as f:
+        for sample in buffer:
+            line = ','.join(str(x) for x in sample)
+            f.write(line + '\n')
+    print(f"✅ Daten gespeichert in {filepath}")
 
 def input_thread():
-    global recording
-    print("Eingabe-Thread gestartet, bitte START oder STOP eingeben.")
+    global recording, buffer
+    print("Drücke 's' für START, Leertaste (SPACE) für STOP und Speichern.")
     while True:
-        cmd = input("Eingabe (START/STOP): ").strip().upper()
-        if cmd == "START":
-            recording = True
-            print("▶️ Aufnahme gestartet.")
-        elif cmd == "STOP":
-            recording = False
-            print("⏹️ Aufnahme gestoppt.")
+        if keyboard.is_pressed('s'):
+            if not recording:
+                recording = True
+                buffer = []
+                print("▶️ Aufnahme gestartet.")
+                time.sleep(0.5)  # Entprellung
+        elif keyboard.is_pressed('space'):
+            if recording:
+                recording = False
+                print("⏹️ Aufnahme gestoppt.")
+                save_buffer_to_file(buffer)
+                time.sleep(0.5)  # Entprellung
 
 def main():
-    global recording
+    global recording, buffer, num_channels
     if not arduino:
         print("ℹ️ Kein Arduino verbunden, Programm beendet.")
         return
@@ -65,17 +87,6 @@ def main():
     thread = threading.Thread(target=input_thread, daemon=True)
     thread.start()
 
-    buffer = []
-
-    plt.ion()
-    fig, ax = plt.subplots()
-    line_signal, = ax.plot([], [], label="EMG-Kanal 1")
-    window_box = ax.axvspan(0, WINDOW_SIZE / fs, color='red', alpha=0.3, label="Aktuelles Fenster")
-    ax.set_title("Live EMG-Signal mit gleitendem Fenster")
-    ax.set_xlabel("Zeit [s]")
-    ax.set_ylabel("Amplitude")
-    ax.legend()
-
     while True:
         try:
             line = arduino.readline().decode('utf-8', errors='ignore').strip()
@@ -83,13 +94,12 @@ def main():
                 continue
 
             parts = line.split(',')
-            global num_channels
             if num_channels is None:
                 num_channels = len(parts)
                 print(f"Anzahl Kanäle erkannt: {num_channels}")
 
             try:
-                sample = [float(x) for x in parts]  # funktioniert auch mit nur einem Wert
+                sample = [float(x) for x in parts]
             except ValueError:
                 print(f"⚠️ Ungültige Daten: {line}")
                 continue
@@ -113,14 +123,6 @@ def main():
 
                     print(f"📣 Vorhersage: {class_label} ({prediction}) | MAV: {mav}, WL: {wl}")
 
-                    time_axis = np.arange(len(filtered)) / fs
-                    line_signal.set_data(time_axis, filtered[:, 0])
-                    ax.set_xlim(time_axis[0], time_axis[-1])
-                    ax.set_ylim(np.min(filtered[:, 0]) * 1.1, np.max(filtered[:, 0]) * 1.1)
-                    window_box.remove()
-                    window_box = ax.axvspan(time_axis[0], time_axis[-1], color='red', alpha=0.3)
-                    plt.pause(0.001)
-
                     # Buffer trimmen, um Speicher zu sparen
                     if len(buffer) > WINDOW_SIZE * 10:
                         buffer = buffer[-WINDOW_SIZE * 5:]
@@ -131,9 +133,6 @@ def main():
         except Exception as e:
             print("⚠️ Fehler beim Lesen/Verarbeiten:", e)
             continue
-
-    plt.ioff()
-    plt.show()
 
     arduino.close()
 
