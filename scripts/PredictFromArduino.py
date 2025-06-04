@@ -7,19 +7,19 @@ import threading
 import os
 from datetime import datetime
 
-# === Lade Modell, Scaler, PCA, Label Encoder
+# === Lade Modell, Scaler, PCA, Label Encoder ===
 model = joblib.load('./model/svm_model_optimized.pkl')
 scaler = joblib.load('./model/scaler.pkl')
 pca = joblib.load('./model/pca_components.pkl')
 label_encoder = joblib.load('./model/label_encoder.pkl')
 
-# === Bandpassfilter Parameter
+# === Bandpassfilter Parameter ===
 lowcut = 1.25
 highcut = 22.5
 fs = 2000
 order = 4
 
-# === Arduino-Serielle Verbindung
+# === Arduino-Verbindung ===
 try:
     arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
     time.sleep(2)
@@ -28,11 +28,12 @@ except Exception as e:
     arduino = None
     print("⚠️ Arduino konnte nicht verbunden werden:", e)
 
+# === Funktionen ===
 def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
     nyq = 0.5 * fs
-    taps = firwin(numtaps, [lowcut/nyq, highcut/nyq], pass_zero=False)
+    taps = firwin(numtaps, [lowcut / nyq, highcut / nyq], pass_zero=False)
     filtered = lfilter(taps, 1.0, data, axis=0)
-    return filtered[numtaps:]  # Verzögerung kompensieren
+    return filtered[numtaps:]
 
 def calculate_mav(sig):
     return np.mean(np.abs(sig), axis=0)
@@ -40,48 +41,67 @@ def calculate_mav(sig):
 def calculate_wl(sig):
     return np.sum(np.abs(np.diff(sig, axis=0)), axis=0)
 
-WINDOW_SIZE = 250
-num_channels = None
-recording = False  # globaler Status
-buffer = []         # globaler Datenpuffer
-
-def save_buffer_to_file(buffer):
-    if not buffer:
+def save_buffer_to_file(data_buffer):
+    if not data_buffer:
         print("⚠️ Kein Datenpuffer zum Speichern.")
         return
     os.makedirs('./data', exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"recorded_data_{timestamp}.txt"
-    filepath = os.path.join('./data', filename)
+    filepath = f'./data/recorded_data_{timestamp}.txt'
     with open(filepath, 'w') as f:
-        for sample in buffer:
-            line = ','.join(str(x) for x in sample)
-            f.write(line + '\n')
-    print(f"✅ Daten gespeichert in {filepath}")
+        for sample in data_buffer:
+            f.write(','.join(str(x) for x in sample) + '\n')
+    print(f"✅ Rohdaten gespeichert in {filepath}")
 
+def save_predictions_to_file(predictions):
+    if not predictions:
+        print("⚠️ Keine Predictions zum Speichern.")
+        return
+    os.makedirs('./predictions', exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filepath = f'./predictions/predictions_{timestamp}.csv'
+    with open(filepath, 'w') as f:
+        f.write("timestamp,label,id," + ",".join([f"mav{i}" for i in range(len(predictions[0][3:])//2)]) +
+                "," + ",".join([f"wl{i}" for i in range(len(predictions[0][3:])//2)]) + "\n")
+        for row in predictions:
+            f.write(','.join(map(str, row)) + '\n')
+    print(f"✅ Predictions gespeichert in {filepath}")
+
+# === Globale Variablen ===
+WINDOW_SIZE = 250
+num_channels = None
+recording = False
+buffer = []
+recording_save = []
+predictions_save = []
+
+# === Eingabe-Thread für START/STOP ===
 def input_thread():
-    global recording
-    print("Eingabe-Thread gestartet, bitte START oder STOP eingeben.")
+    global recording, recording_save, predictions_save, buffer
+    print("🎛️ Eingabe-Thread gestartet (START/STOP).")
     while True:
         cmd = input("Eingabe (START/STOP): ").strip().upper()
         if cmd == "START":
             recording = True
-            buffer = [] 
+            recording_save = []
+            predictions_save = []
+            buffer = []
             print("▶️ Aufnahme gestartet.")
         elif cmd == "STOP":
             recording = False
             print("⏹️ Aufnahme gestoppt.")
-            save_buffer_to_file(buffer)
+            save_buffer_to_file(recording_save)
+            save_predictions_to_file(predictions_save)
 
+# === Hauptprogramm ===
 def main():
-    global recording, buffer, num_channels
+    global recording, buffer, num_channels, recording_save, predictions_save
+
     if not arduino:
-        print("ℹ️ Kein Arduino verbunden, Programm beendet.")
+        print("Kein Arduino verbunden. Programm beendet.")
         return
 
-    # Starte Eingabe-Thread
-    thread = threading.Thread(target=input_thread, daemon=True)
-    thread.start()
+    threading.Thread(target=input_thread, daemon=True).start()
 
     while True:
         try:
@@ -97,11 +117,12 @@ def main():
             try:
                 sample = [float(x) for x in parts]
             except ValueError:
-                print(f"⚠️ Ungültige Daten: {line}")
+                print(f"Ungültige Daten empfangen: {line}")
                 continue
 
             if recording:
                 buffer.append(sample)
+                recording_save.append(sample)
 
                 if len(buffer) >= WINDOW_SIZE:
                     data_np = np.array(buffer[-WINDOW_SIZE:])
@@ -117,17 +138,19 @@ def main():
                     prediction = model.predict(reduced)[0]
                     class_label = label_encoder.inverse_transform([prediction])[0]
 
-                    print(f"📣 Vorhersage: {class_label} ({prediction}) | MAV: {mav}, WL: {wl}")
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+                    predictions_save.append((timestamp, class_label, int(prediction), *mav, *wl))
 
-                    # Buffer trimmen, um Speicher zu sparen
+                    print(f"📣 Vorhersage: {class_label} (ID: {prediction})")
+
                     if len(buffer) > WINDOW_SIZE * 10:
                         buffer = buffer[-WINDOW_SIZE * 5:]
 
         except KeyboardInterrupt:
-            print("⏹️ Beendet durch Benutzer")
+            print("Programm durch Benutzer beendet.")
             break
         except Exception as e:
-            print("⚠️ Fehler beim Lesen/Verarbeiten:", e)
+            print("⚠️ Fehler:", e)
             continue
 
     arduino.close()
