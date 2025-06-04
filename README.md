@@ -7,6 +7,7 @@ Dieses Projekt enthält den Quellcode und die Dokumentation zur Entwicklung eine
 - [ProgrammingProject: SVM zur Bestimmung von Handpositionen mittels EMG-Daten](#programmingproject-svm-zur-bestimmung-von-handpositionen-mittels-emg-daten)
   - [Inhaltsverzeichnis](#inhaltsverzeichnis)
   - [Installation](#installation)
+  - [Speicherung der Daten](#speicherung-der-daten)
   - [Datenbeschreibung](#datenbeschreibung)
   - [Modellentwicklung](#modellentwicklung)
   - [Modell-Speicherung](#modell-speicherung)
@@ -48,6 +49,14 @@ Das Projekt basiert darauf, dass ein Raspberry Pi mit einem Arduino über die se
    START - Starten
    STOP - Beenden
    ```
+
+## Speicherung der Daten
+
+Die Daten werden im im Ordner `./data` als .txt Daten gespeichert. Sowohl die Prediction als auch die Aufgenommenen Daten werden gespeichert und abgelegt. Um diese über ssh herunterladen zu können, kann der Port 8080 genutzt werden. Dafür muss zunächst zu den Daten navigiert werden auf dem Raspberry Pi. Danach muss der Port freigegeben werden:
+```python
+python3 -m http.server 8080
+```
+Darauf hin ist sidn die Daten im Netzwerk unter der `IP-Adresse:8080` abrufbar. Sollten die Daten über diese Schnittstelle nicht abrufbar sein, so werden die Daten auch lokal auf dem Raspberry Pi gespeichert und "verwart".
 
 ## Datenbeschreibung
 

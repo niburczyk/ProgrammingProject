@@ -11,10 +11,7 @@ In diesem Abschnitt werden die architekturellen Randbedingungen beschrieben, die
 2. **Verwendung von EMG-Daten**: 
    EMG-Daten sind in der Regel verrauscht und variieren stark zwischen einzelnen Personen und Aufnahmen. Daher ist eine robuste Vorverarbeitung der Daten erforderlich, einschließlich Filterung und Normalisierung, um verlässliche Merkmale für das SVM-Modell zu extrahieren.
 
-3. **Modellexport in C-Code**: 
-   Das trainierte SVM-Modell muss in C-Code konvertiert werden, um auf dem Arduino eingesetzt werden zu können. Dies wird durch die Bibliothek `sklearn-porter` realisiert, die eine direkte Übersetzung von Modellen in C erlaubt. Die Architektur muss daher die Kompatibilität mit dieser Bibliothek sicherstellen.
-
-4. **Echtzeitfähigkeit**: 
+3. **Echtzeitfähigkeit**: 
    Die Klassifikation der EMG-Daten muss in Echtzeit erfolgen. Dies erfordert, dass sowohl die Vorverarbeitung der Daten als auch die Anwendung des Modells auf dem Arduino so optimiert werden, dass sie innerhalb der gegebenen Zeitrahmen ablaufen.
 
 === Organisatorische Randbedingungen
