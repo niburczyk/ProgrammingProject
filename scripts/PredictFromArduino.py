@@ -66,10 +66,12 @@ def input_thread():
         cmd = input("Eingabe (START/STOP): ").strip().upper()
         if cmd == "START":
             recording = True
+            buffer = [] 
             print("▶️ Aufnahme gestartet.")
         elif cmd == "STOP":
             recording = False
             print("⏹️ Aufnahme gestoppt.")
+            save_buffer_to_file(buffer)
 
 def main():
     global recording, buffer, num_channels
