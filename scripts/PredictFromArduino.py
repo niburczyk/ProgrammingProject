@@ -41,31 +41,30 @@ def calculate_mav(sig):
 def calculate_wl(sig):
     return np.sum(np.abs(np.diff(sig, axis=0)), axis=0)
 
-def save_buffer_to_file(data_buffer):
-    if not data_buffer:
+def save_buffer_to_file(recording_save):
+    if not recording_save:
         print("⚠️ Kein Datenpuffer zum Speichern.")
         return
-    os.makedirs('./data', exist_ok=True)
+    os.makedirs('/data', exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filepath = f'./data/recorded_data_{timestamp}.txt'
+    filename = f"recorded_data_{timestamp}.txt"
+    filepath = os.path.join('/data', filename)
     with open(filepath, 'w') as f:
-        for sample in data_buffer:
-            f.write(','.join(str(x) for x in sample) + '\n')
-    print(f"✅ Rohdaten gespeichert in {filepath}")
+        for sample in recording_save:
+            line = ','.join(str(x) for x in sample)
+            f.write(line + '\n')
+    print(f"✅ Daten gespeichert in {filepath}")
 
-def save_predictions_to_file(predictions):
-    if not predictions:
-        print("⚠️ Keine Predictions zum Speichern.")
-        return
-    os.makedirs('./predictions', exist_ok=True)
+def save_prediction_to_file(prediction, mav, wl):
+    os.makedirs('/data', exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filepath = f'./predictions/predictions_{timestamp}.csv'
+    filename = f"prediction_{timestamp}.txt"
+    filepath = os.path.join('/data', filename)
     with open(filepath, 'w') as f:
-        f.write("timestamp,label,id," + ",".join([f"mav{i}" for i in range(len(predictions[0][3:])//2)]) +
-                "," + ",".join([f"wl{i}" for i in range(len(predictions[0][3:])//2)]) + "\n")
-        for row in predictions:
-            f.write(','.join(map(str, row)) + '\n')
-    print(f"✅ Predictions gespeichert in {filepath}")
+        f.write(f"Vorhersage: {prediction}\n")
+        f.write(f"MAV: {mav}\n")
+        f.write(f"WL: {wl}\n")
+    print(f"✅ Vorhersage gespeichert in {filepath}")
 
 # === Globale Variablen ===
 WINDOW_SIZE = 250
@@ -141,7 +140,7 @@ def main():
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                     predictions_save.append((timestamp, class_label, int(prediction), *mav, *wl))
 
-                    print(f"📣 Vorhersage: {class_label} (ID: {prediction})")
+                    print(f"Vorhersage: {class_label} ({prediction}) | MAV: {mav}, WL: {wl}")
 
                     if len(buffer) > WINDOW_SIZE * 10:
                         buffer = buffer[-WINDOW_SIZE * 5:]
