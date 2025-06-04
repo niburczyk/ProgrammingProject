@@ -90,7 +90,7 @@ def input_thread():
             recording = False
             print("⏹️ Aufnahme gestoppt.")
             save_buffer_to_file(recording_save)
-            save_predictions_to_file(predictions_save)
+            save_prediction_to_file(predictions_save)
 
 # === Hauptprogramm ===
 def main():
