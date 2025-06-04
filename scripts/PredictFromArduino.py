@@ -4,7 +4,8 @@ from scipy.signal import firwin, lfilter
 import serial
 import time
 import threading
-import keyboard
+import sys
+import select
 import os
 from datetime import datetime
 
@@ -62,20 +63,21 @@ def save_buffer_to_file(buffer):
 
 def input_thread():
     global recording, buffer
-    print("Drücke 's' für START, Leertaste (SPACE) für STOP und Speichern.")
+    print("Gebe 'START' ein und drücke Enter zum START, 'STOP' zum STOP und Speichern.")
     while True:
-        if keyboard.is_pressed('s'):
-            if not recording:
-                recording = True
-                buffer = []
-                print("▶️ Aufnahme gestartet.")
-                time.sleep(0.5)  # Entprellung
-        elif keyboard.is_pressed('space'):
-            if recording:
-                recording = False
-                print("⏹️ Aufnahme gestoppt.")
-                save_buffer_to_file(buffer)
-                time.sleep(0.5)  # Entprellung
+        # Warte auf Eingabe ohne blockierend
+        if select.select([sys.stdin], [], [], 0.1)[0]:
+            line = sys.stdin.readline().strip().lower()
+            if line == 'START':
+                if not recording:
+                    recording = True
+                    buffer = []
+                    print("▶️ Aufnahme gestartet.")
+            elif line == 'STOP':
+                if recording:
+                    recording = False
+                    print("⏹️ Aufnahme gestoppt.")
+                    save_buffer_to_file(buffer)
 
 def main():
     global recording, buffer, num_channels

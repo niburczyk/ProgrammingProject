@@ -45,8 +45,8 @@ Das Projekt basiert darauf, dass ein Raspberry Pi mit einem Arduino über die se
 
 6. Aufnahme oder Vorhersage starten bzw. stoppen:  
    ```text
-   s - Starten
-   <space> - Beenden
+   START - Starten
+   STOP - Beenden
    ```
 
 ## Datenbeschreibung
