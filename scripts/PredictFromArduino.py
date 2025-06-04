@@ -62,22 +62,16 @@ def save_buffer_to_file(buffer):
     print(f"✅ Daten gespeichert in {filepath}")
 
 def input_thread():
-    global recording, buffer
-    print("Gebe 'START' ein und drücke Enter zum START, 'STOP' zum STOP und Speichern.")
+    global recording
+    print("Eingabe-Thread gestartet, bitte START oder STOP eingeben.")
     while True:
-        # Warte auf Eingabe ohne blockierend
-        if select.select([sys.stdin], [], [], 0.1)[0]:
-            line = sys.stdin.readline().strip().lower()
-            if line == 'START':
-                if not recording:
-                    recording = True
-                    buffer = []
-                    print("▶️ Aufnahme gestartet.")
-            elif line == 'STOP':
-                if recording:
-                    recording = False
-                    print("⏹️ Aufnahme gestoppt.")
-                    save_buffer_to_file(buffer)
+        cmd = input("Eingabe (START/STOP): ").strip().upper()
+        if cmd == "START":
+            recording = True
+            print("▶️ Aufnahme gestartet.")
+        elif cmd == "STOP":
+            recording = False
+            print("⏹️ Aufnahme gestoppt.")
 
 def main():
     global recording, buffer, num_channels
