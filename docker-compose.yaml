@@ -8,10 +8,10 @@ services:
       - ./sample:/sample
       - ./src:/src
       - ./data:/data
-  command: >
-    bash -c "
-      ./scripts/flash_arduino.sh &&
-      exec python3 ./scripts/PredictFromArduino.py
-    "
+    command: >
+      bash -c "
+        ./scripts/flash_arduino.sh &&
+        exec python3 ./scripts/PredictFromArduino.py
+      "
     tty: true
     stdin_open: true
