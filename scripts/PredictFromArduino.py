@@ -4,8 +4,6 @@ from scipy.signal import firwin, lfilter
 import serial
 import time
 import threading
-import sys
-import select
 import os
 from datetime import datetime
 
