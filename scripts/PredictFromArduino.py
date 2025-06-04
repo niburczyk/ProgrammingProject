@@ -55,15 +55,13 @@ def save_buffer_to_file(recording_save):
             f.write(line + '\n')
     print(f"✅ Daten gespeichert in {filepath}")
 
-def save_prediction_to_file(prediction, mav, wl):
+def save_prediction_to_file(prediction):
     os.makedirs('/data', exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"prediction_{timestamp}.txt"
     filepath = os.path.join('/data', filename)
     with open(filepath, 'w') as f:
         f.write(f"Vorhersage: {prediction}\n")
-        f.write(f"MAV: {mav}\n")
-        f.write(f"WL: {wl}\n")
     print(f"✅ Vorhersage gespeichert in {filepath}")
 
 # === Globale Variablen ===
@@ -77,7 +75,7 @@ predictions_save = []
 # === Eingabe-Thread für START/STOP ===
 def input_thread():
     global recording, recording_save, predictions_save, buffer
-    print("🎛️ Eingabe-Thread gestartet (START/STOP).")
+    print("Eingabe-Thread gestartet (START/STOP).")
     while True:
         cmd = input("Eingabe (START/STOP): ").strip().upper()
         if cmd == "START":
@@ -85,10 +83,10 @@ def input_thread():
             recording_save = []
             predictions_save = []
             buffer = []
-            print("▶️ Aufnahme gestartet.")
+            print("Aufnahme gestartet.")
         elif cmd == "STOP":
             recording = False
-            print("⏹️ Aufnahme gestoppt.")
+            print("Aufnahme gestoppt.")
             save_buffer_to_file(recording_save)
             save_prediction_to_file(predictions_save)
 
@@ -149,7 +147,7 @@ def main():
             print("Programm durch Benutzer beendet.")
             break
         except Exception as e:
-            print("⚠️ Fehler:", e)
+            print("Fehler:", e)
             continue
 
     arduino.close()
