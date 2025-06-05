@@ -36,10 +36,10 @@ Das SVM-Modell wird auf Basis der extrahierten Merkmale trainiert, um verschiede
 
 === Modell-Export und Integration auf Arduino
 
-Ein zentraler Teil der Lösungsstrategie ist die Implementierung des Modells auf einem Arduino, um die Klassifikation in Echtzeit durchzuführen. 
+Ein zentraler Teil der Lösungsstrategie ist die Implementierung des Modells, um die Klassifikation in Echtzeit durchzuführen. 
 
 **Aktueller Stand**: 
-Derzeit wird das trainierte SVM-Modell als `.pkl`-Datei (Pickle-Format) gespeichert, anstatt es direkt in C-Code für den Arduino zu exportieren. Der Export des Modells in das `.h`-Format (C-Code) mittels der Bibliothek `sklearn-porter` ist als zukünftiger Schritt geplant.
+Derzeit wird das trainierte SVM-Modell als `.pkl`-Datei (Pickle-Format) gespeichert.
 
 1. **Modellexport (aktuell)**:
    - Aktuell wird das trainierte SVM-Modell mit der Python-Bibliothek `joblib` als `.pkl`-Datei gespeichert. Diese Datei kann in anderen Python-Projekten wiederverwendet oder weiterverarbeitet werden:

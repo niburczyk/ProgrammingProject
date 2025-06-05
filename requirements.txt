@@ -1,0 +1,6 @@
+pyserial
+numpy
+scipy
+joblib
+scikit-learn
+keyboard

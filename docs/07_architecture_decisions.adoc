@@ -28,11 +28,10 @@ Die große Community und die umfangreiche Dokumentation machen es einfacher, Unt
 
 === 4. Export des Modells für die Verwendung auf dem Arduino
 
-**Entscheidung**: Das trainierte SVM-Modell wird als `.pkl`-Datei gespeichert und zur Verwendung auf dem Arduino in C-Code konvertiert.
+**Entscheidung**: Das trainierte SVM-Modell wird als `.pkl`-Datei gespeichert.
 
 **Begründung**:
 Die Verwendung von `joblib` zur Speicherung des Modells ermöglicht eine einfache Wiederverwendbarkeit und Integration in andere Python-Projekte.
-Der Export in C-Code ermöglicht die Ausführung des Modells auf der ressourcenbegrenzten Arduino-Plattform, was die Portabilität und die Anwendbarkeit des Systems erhöht.
 
 === 5. Modularer Codeansatz
 

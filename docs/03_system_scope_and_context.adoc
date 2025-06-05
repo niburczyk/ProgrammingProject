@@ -21,8 +21,8 @@ Das System ist darauf ausgelegt, Handgesten anhand von EMG-Daten zu erkennen und
 - Die Ausgabe des Systems ist die erkannte Handposition, die entweder an eine externe Anzeige ausgegeben oder zur Steuerung eines externen Geräts (wie z.B. eines Roboters) verwendet wird.
 
 === Technischer Kontext
+Das System wird auf einem Mikrocomputer (Raspberry Pi) ausgeführt und verwendet eine Reihe von Tools zur Modellentwicklung und Vorverarbeitung. Technisch gesehen umfasst das System mehrere Hauptkomponenten, darunter die Verarbeitung der EMG-Daten, die Extraktion von Merkmalen, das Trainieren des Modells sowie den Export des Modells. Der Arduino dient zur Aufnahme der EMG-Daten. Diese werden über die Serielle Schnittstelle an den Raspberry Pi übermittelt, wo diese weiter verabeitet werden.
 
-Das System wird auf einem ressourcenbeschränkten Mikrocontroller (Arduino) ausgeführt und verwendet eine Reihe von Tools zur Modellentwicklung und Vorverarbeitung. Technisch gesehen umfasst das System mehrere Hauptkomponenten, darunter die Verarbeitung der EMG-Daten, die Extraktion von Merkmalen, das Trainieren des Modells sowie den Export des Modells auf den Arduino.
 
 **Technische Schnittstellen**:
 

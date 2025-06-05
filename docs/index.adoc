@@ -1,6 +1,6 @@
 = SVM zur Bestimmung von Handpositionen mittels EMG-Daten
 :revnumber: 2.0
-:revdate: November 2024
+:revdate: Juni 2025
 :numbered:
 
 :toc-title: Inhaltsverzeichnis

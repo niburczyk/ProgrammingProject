@@ -1,0 +1,17 @@
+services:
+  predictor:
+    build: .
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    volumes:
+      - ./model:/model
+      - ./sample:/sample
+      - ./src:/src
+      - ./data:/data
+    command: >
+      bash -c "
+        ./scripts/flash_arduino.sh &&
+        exec python3 ./scripts/PredictFromArduino.py
+      "
+    tty: true
+    stdin_open: true
