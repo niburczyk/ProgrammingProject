@@ -12,7 +12,7 @@ long offsetSum = 0;
 float offset = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(230400);
   while (!Serial);
 }
 
