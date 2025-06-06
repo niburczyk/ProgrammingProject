@@ -49,20 +49,30 @@ def save_buffer_to_file(recording_save):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"recorded_data_{timestamp}.txt"
     filepath = os.path.join('/data', filename)
+
     with open(filepath, 'w') as f:
         for sample in recording_save:
-            line = ','.join(str(x) for x in sample)
-            f.write(line + '\n')
+            for val in sample:
+                f.write(str(val) + '\n')
+
     print(f"✅ Daten gespeichert in {filepath}")
 
-def save_prediction_to_file(prediction):
+
+def save_prediction_to_file(predictions):
+    if not predictions:
+        print("⚠️ Keine Vorhersagedaten zum Speichern.")
+        return
     os.makedirs('/data', exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"prediction_{timestamp}.txt"
     filepath = os.path.join('/data', filename)
+
     with open(filepath, 'w') as f:
-        f.write(f"Vorhersage: {prediction}\n")
-    print(f"✅ Vorhersage gespeichert in {filepath}")
+        for pred in predictions:
+            f.write(str(pred[2]) + '\n')
+
+    print(f"✅ Vorhersagen gespeichert in {filepath}")
+
 
 # === Globale Variablen ===
 WINDOW_SIZE = 250
