@@ -5,6 +5,13 @@ import serial
 import time
 import threading
 import os
+import sys
+
+# === Konfiguration ===
+SERIAL_PORT = '/dev/ttyACM0'
+BAUD_RATE = 230400
+
+DATA_SAVE_DIR = os.path.expanduser('/data')  # Beispiel für Windows & Linux kompatibel
 
 # === Lade Modell, Scaler, PCA, Label Encoder ===
 model = joblib.load('./model/svm_model_optimized.pkl')
@@ -16,23 +23,24 @@ label_encoder = joblib.load('./model/label_encoder.pkl')
 lowcut = 1.25
 highcut = 22.5
 fs = 2000
-order = 4
+numtaps = 101
 
 # === Arduino-Verbindung ===
 try:
-    arduino = serial.Serial('/dev/ttyACM0', 230400, timeout=1)
+    arduino = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
     time.sleep(2)
-    print("✅ Arduino verbunden.")
+    print(f"✅ Arduino verbunden an {SERIAL_PORT}.")
 except Exception as e:
     arduino = None
-    print("⚠️ Arduino konnte nicht verbunden werden:", e)
+    print(f"⚠️ Arduino konnte nicht verbunden werden: {e}")
+    sys.exit(1)
 
 # === Funktionen ===
 def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
     nyq = 0.5 * fs
     taps = firwin(numtaps, [lowcut / nyq, highcut / nyq], pass_zero=False)
     filtered = lfilter(taps, 1.0, data, axis=0)
-    return filtered[numtaps:]
+    return filtered[numtaps:]  # Verzögerung durch Filter berücksichtigen
 
 def calculate_mav(sig):
     return np.mean(np.abs(sig), axis=0)
@@ -44,11 +52,11 @@ def save_buffer_to_file(recording_save):
     if not recording_save:
         print("⚠️ Kein Datenpuffer zum Speichern.")
         return
-    os.makedirs('/data', exist_ok=True)
+    os.makedirs(DATA_SAVE_DIR, exist_ok=True)
     filename = f"recorded_data_{int(time.time()*1000)}.txt"
-    filepath = os.path.join('/data', filename)
+    filepath = os.path.join(DATA_SAVE_DIR, filename)
 
-    with open(filepath, 'w', encoding='utf-8') as f:
+    with open(filepath, 'w', encoding='utf-8', buffering=1) as f:  # line buffering
         for sample in recording_save:
             line = ','.join(map(str, sample))
             f.write(line + '\n')
@@ -59,11 +67,11 @@ def save_prediction_to_file(predictions):
     if not predictions:
         print("⚠️ Keine Vorhersagedaten zum Speichern.")
         return
-    os.makedirs('/data', exist_ok=True)
+    os.makedirs(DATA_SAVE_DIR, exist_ok=True)
     filename = f"prediction_{int(time.time()*1000)}.txt"
-    filepath = os.path.join('/data', filename)
+    filepath = os.path.join(DATA_SAVE_DIR, filename)
 
-    with open(filepath, 'w', encoding='utf-8') as f:
+    with open(filepath, 'w', encoding='utf-8', buffering=1) as f:  # line buffering
         for pred in predictions:
             # pred[0] = timestamp_ms, pred[2] = int prediction value
             line = f"{pred[0]},{pred[2]}"
@@ -101,15 +109,15 @@ def input_thread():
 def main():
     global recording, buffer, num_channels, recording_save, predictions_save
 
-    if not arduino:
-        print("Kein Arduino verbunden. Programm beendet.")
-        return
-
     threading.Thread(target=input_thread, daemon=True).start()
 
-    while True:
-        try:
-            line = arduino.readline().decode('utf-8', errors='ignore').strip()
+    print("Warte auf serielle Daten...")
+    try:
+        while True:
+            line_bytes = arduino.readline()
+            if not line_bytes:
+                continue
+            line = line_bytes.decode('utf-8', errors='ignore').strip()
             if not line:
                 continue
 
@@ -132,7 +140,11 @@ def main():
                 if len(buffer) >= WINDOW_SIZE:
                     data_np = np.array(buffer[-WINDOW_SIZE:])
 
-                    filtered = bandpass_filter(data_np, lowcut, highcut, fs, order)
+                    filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
+
+                    if filtered.shape[0] < WINDOW_SIZE - numtaps:
+                        # Falls nach Filterung zu wenig Samples, überspringen
+                        continue
 
                     mav = calculate_mav(filtered)
                     wl = calculate_wl(filtered)
@@ -147,17 +159,18 @@ def main():
 
                     print(f"Vorhersage: {class_label} ({prediction})")
 
+                    # Buffer nicht zu groß werden lassen
                     if len(buffer) > WINDOW_SIZE * 10:
                         buffer = buffer[-WINDOW_SIZE * 5:]
 
-        except KeyboardInterrupt:
-            print("Programm durch Benutzer beendet.")
-            break
-        except Exception as e:
-            print("Fehler:", e)
-            continue
-
-    arduino.close()
+    except KeyboardInterrupt:
+        print("\nProgramm durch Benutzer beendet.")
+    except Exception as e:
+        print("Fehler:", e)
+    finally:
+        if arduino and arduino.is_open:
+            arduino.close()
+        print("Port geschlossen.")
 
 if __name__ == "__main__":
     main()
