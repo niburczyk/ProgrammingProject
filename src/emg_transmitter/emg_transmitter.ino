@@ -1,6 +1,6 @@
 const int emgPin = A0;
 unsigned long lastSendTime = 0;
-const unsigned int sampleInterval = 1;  // 1 ms = 1000 Hz
+const unsigned int sampleInterval = 500;  // 2000 Hz
 const unsigned int driftSamples = 100;  // Anzahl der Samples zur Drift-Berechnung
 
 String command = "";
