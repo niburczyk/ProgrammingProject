@@ -5,7 +5,6 @@ import serial
 import time
 import threading
 import os
-from datetime import datetime
 
 # === Lade Modell, Scaler, PCA, Label Encoder ===
 model = joblib.load('./model/svm_model_optimized.pkl')
@@ -46,33 +45,31 @@ def save_buffer_to_file(recording_save):
         print("⚠️ Kein Datenpuffer zum Speichern.")
         return
     os.makedirs('/data', exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"recorded_data_{timestamp}.txt"
+    filename = f"recorded_data_{int(time.time()*1000)}.txt"
     filepath = os.path.join('/data', filename)
 
-    with open(filepath, 'w') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         for sample in recording_save:
-            for val in sample:
-                f.write(str(val) + '\n')
+            line = ','.join(map(str, sample))
+            f.write(line + '\n')
 
     print(f"✅ Daten gespeichert in {filepath}")
-
 
 def save_prediction_to_file(predictions):
     if not predictions:
         print("⚠️ Keine Vorhersagedaten zum Speichern.")
         return
     os.makedirs('/data', exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"prediction_{timestamp}.txt"
+    filename = f"prediction_{int(time.time()*1000)}.txt"
     filepath = os.path.join('/data', filename)
 
-    with open(filepath, 'w') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         for pred in predictions:
-            f.write(str(pred[2]) + '\n')
+            # pred[0] = timestamp_ms, pred[2] = int prediction value
+            line = f"{pred[0]},{pred[2]}"
+            f.write(line + '\n')
 
     print(f"✅ Vorhersagen gespeichert in {filepath}")
-
 
 # === Globale Variablen ===
 WINDOW_SIZE = 250
@@ -128,8 +125,9 @@ def main():
                 continue
 
             if recording:
+                timestamp_ms = int(time.time() * 1000)
                 buffer.append(sample)
-                recording_save.append(sample)
+                recording_save.append([timestamp_ms] + sample)
 
                 if len(buffer) >= WINDOW_SIZE:
                     data_np = np.array(buffer[-WINDOW_SIZE:])
@@ -145,10 +143,9 @@ def main():
                     prediction = model.predict(reduced)[0]
                     class_label = label_encoder.inverse_transform([prediction])[0]
 
-                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-                    predictions_save.append((timestamp, class_label, int(prediction), *mav, *wl))
+                    predictions_save.append((timestamp_ms, class_label, int(prediction)))
 
-                    print(f"Vorhersage: {class_label} ({prediction}) | MAV: {mav}, WL: {wl}")
+                    print(f"Vorhersage: {class_label} ({prediction})")
 
                     if len(buffer) > WINDOW_SIZE * 10:
                         buffer = buffer[-WINDOW_SIZE * 5:]
