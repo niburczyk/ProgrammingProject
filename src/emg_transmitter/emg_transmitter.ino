@@ -1,14 +1,13 @@
 const int emgPin = A0;
-unsigned long lastSendTime = 0;
-const unsigned int sampleInterval = 500;  // 2000 Hz
-const unsigned int driftSamples = 100;  // Anzahl der Samples zur Drift-Berechnung
 
-String command = "";
-bool recording = true;
+const unsigned long sampleIntervalMicros = 500;  // 0,5 ms = 2000 Hz
+unsigned long lastSampleTime = 0;
+
+const unsigned int driftSamples = 100;
 
 bool offsetCalculated = false;
 unsigned int sampleCount = 0;
-long offsetSum = 0;
+unsigned long offsetSum = 0;
 float offset = 0;
 
 void setup() {
@@ -17,12 +16,11 @@ void setup() {
 }
 
 void loop() {
-  unsigned long now = millis();
+  unsigned long now = micros();
 
-  if (recording && (now - lastSendTime >= sampleInterval)) {
+  if (now - lastSampleTime >= sampleIntervalMicros) {
     int emg = analogRead(emgPin);
 
-    // 1. Phase: Drift/Offset berechnen
     if (!offsetCalculated) {
       offsetSum += emg;
       sampleCount++;
@@ -32,11 +30,10 @@ void loop() {
         offsetCalculated = true;
       }
     } else {
-      // 2. Phase: Bereinigten EMG-Wert ausgeben
       float cleanedEMG = emg - offset;
       Serial.println(cleanedEMG);
     }
 
-    lastSendTime = now;
+    lastSampleTime = now;
   }
 }
