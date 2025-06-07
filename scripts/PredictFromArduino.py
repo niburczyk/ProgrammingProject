@@ -6,6 +6,7 @@ import time
 import threading
 import os
 import sys
+from queue import Queue
 
 # === Konfiguration ===
 SERIAL_PORT = '/dev/ttyACM0'
@@ -29,10 +30,10 @@ numtaps = 101
 try:
     arduino = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
     time.sleep(2)
-    print(f"✅ Arduino verbunden an {SERIAL_PORT}.")
+    print(f"Arduino verbunden an {SERIAL_PORT}.")
 except Exception as e:
     arduino = None
-    print(f"⚠️ Arduino konnte nicht verbunden werden: {e}")
+    print(f"Arduino konnte nicht verbunden werden: {e}")
     sys.exit(1)
 
 # === Funktionen ===
@@ -50,7 +51,7 @@ def calculate_wl(sig):
 
 def save_buffer_to_file(recording_save):
     if not recording_save:
-        print("⚠️ Kein Datenpuffer zum Speichern.")
+        print("Kein Datenpuffer zum Speichern.")
         return
     os.makedirs(DATA_SAVE_DIR, exist_ok=True)
     filename = f"recorded_data_{int(time.time()*1000)}.txt"
@@ -61,11 +62,11 @@ def save_buffer_to_file(recording_save):
             line = ','.join(map(str, sample))
             f.write(line + '\n')
 
-    print(f"✅ Daten gespeichert in {filepath}")
+    print(f"Daten gespeichert in {filepath}")
 
 def save_prediction_to_file(predictions):
     if not predictions:
-        print("⚠️ Keine Vorhersagedaten zum Speichern.")
+        print("Keine Vorhersagedaten zum Speichern.")
         return
     os.makedirs(DATA_SAVE_DIR, exist_ok=True)
     filename = f"prediction_{int(time.time()*1000)}.txt"
@@ -73,23 +74,23 @@ def save_prediction_to_file(predictions):
 
     with open(filepath, 'w', encoding='utf-8', buffering=1) as f:  # line buffering
         for pred in predictions:
-            # pred[0] = timestamp_ms, pred[2] = int prediction value
             line = f"{pred[0]},{pred[2]}"
             f.write(line + '\n')
 
-    print(f"✅ Vorhersagen gespeichert in {filepath}")
+    print(f"Vorhersagen gespeichert in {filepath}")
 
 # === Globale Variablen ===
 WINDOW_SIZE = 250
 num_channels = None
 recording = False
-buffer = []
 recording_save = []
 predictions_save = []
+data_queue = Queue()
+write_queue = Queue()
 
 # === Eingabe-Thread für START/STOP ===
 def input_thread():
-    global recording, recording_save, predictions_save, buffer
+    global recording, recording_save, predictions_save
     print("Eingabe-Thread gestartet (START/STOP).")
     while True:
         cmd = input("Eingabe (START/STOP): ").strip().upper()
@@ -97,7 +98,6 @@ def input_thread():
             recording = True
             recording_save = []
             predictions_save = []
-            buffer = []
             print("Aufnahme gestartet.")
         elif cmd == "STOP":
             recording = False
@@ -105,15 +105,20 @@ def input_thread():
             save_buffer_to_file(recording_save)
             save_prediction_to_file(predictions_save)
 
-# === Hauptprogramm ===
-def main():
-    global recording, buffer, num_channels, recording_save, predictions_save
-
-    threading.Thread(target=input_thread, daemon=True).start()
-
-    print("Warte auf serielle Daten...")
-    try:
+# === Thread zum Schreiben in Datei ===
+def file_writer():
+    os.makedirs(DATA_SAVE_DIR, exist_ok=True)
+    filepath = os.path.join(DATA_SAVE_DIR, "emg_raw_live.txt")
+    with open(filepath, "a", encoding="utf-8") as f:
         while True:
+            line = write_queue.get()
+            f.write(line + '\n')
+
+# === Thread zum Einlesen der seriellen Daten ===
+def serial_reader():
+    global num_channels
+    while True:
+        try:
             line_bytes = arduino.readline()
             if not line_bytes:
                 continue
@@ -126,47 +131,58 @@ def main():
                 num_channels = len(parts)
                 print(f"Anzahl Kanäle erkannt: {num_channels}")
 
-            try:
-                sample = [float(x) for x in parts]
-            except ValueError:
-                print(f"Ungültige Daten empfangen: {line}")
-                continue
+            sample = [float(x) for x in parts]
+            timestamp_ms = int(time.time() * 1000)
 
             if recording:
-                timestamp_ms = int(time.time() * 1000)
-                buffer.append(sample)
                 recording_save.append([timestamp_ms] + sample)
+                data_queue.put((timestamp_ms, sample))
+                write_queue.put(','.join(map(str, [timestamp_ms] + sample)))
+        except Exception as e:
+            print("Lesefehler:", e)
 
-                if len(buffer) >= WINDOW_SIZE:
-                    data_np = np.array(buffer[-WINDOW_SIZE:])
+# === Thread zum Verarbeiten der Daten ===
+def data_processor():
+    buffer = []
+    while True:
+        timestamp_ms, sample = data_queue.get()
+        buffer.append(sample)
+        if len(buffer) >= WINDOW_SIZE:
+            try:
+                data_np = np.array(buffer[-WINDOW_SIZE:])
+                filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
+                if filtered.shape[0] < WINDOW_SIZE - numtaps:
+                    continue
 
-                    filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
+                mav = calculate_mav(filtered)
+                wl = calculate_wl(filtered)
+                features = np.concatenate((mav, wl)).reshape(1, -1)
 
-                    if filtered.shape[0] < WINDOW_SIZE - numtaps:
-                        # Falls nach Filterung zu wenig Samples, überspringen
-                        continue
+                scaled = scaler.transform(features)
+                reduced = pca.transform(scaled)
+                prediction = model.predict(reduced)[0]
+                class_label = label_encoder.inverse_transform([prediction])[0]
 
-                    mav = calculate_mav(filtered)
-                    wl = calculate_wl(filtered)
-                    features = np.concatenate((mav, wl)).reshape(1, -1)
+                predictions_save.append((timestamp_ms, class_label, int(prediction)))
+                print(f"Vorhersage: {class_label} ({prediction})")
 
-                    scaled = scaler.transform(features)
-                    reduced = pca.transform(scaled)
-                    prediction = model.predict(reduced)[0]
-                    class_label = label_encoder.inverse_transform([prediction])[0]
+                if len(buffer) > WINDOW_SIZE * 10:
+                    buffer = buffer[-WINDOW_SIZE * 5:]
+            except Exception as e:
+                print("Verarbeitungsfehler:", e)
 
-                    predictions_save.append((timestamp_ms, class_label, int(prediction)))
+# === Hauptprogramm ===
+def main():
+    threading.Thread(target=input_thread, daemon=True).start()
+    threading.Thread(target=serial_reader, daemon=True).start()
+    threading.Thread(target=data_processor, daemon=True).start()
+    threading.Thread(target=file_writer, daemon=True).start()
 
-                    print(f"Vorhersage: {class_label} ({prediction})")
-
-                    # Buffer nicht zu groß werden lassen
-                    if len(buffer) > WINDOW_SIZE * 10:
-                        buffer = buffer[-WINDOW_SIZE * 5:]
-
+    try:
+        while True:
+            time.sleep(1)
     except KeyboardInterrupt:
         print("\nProgramm durch Benutzer beendet.")
-    except Exception as e:
-        print("Fehler:", e)
     finally:
         if arduino and arduino.is_open:
             arduino.close()
