@@ -12,7 +12,7 @@ RECORD_SECONDS = 30
 SAMPLES_PER_FILE = SAMPLING_RATE * RECORD_SECONDS
 
 OUTPUT_DIR = r'C:\Users\Niklas\sciebo - Burczyk, Niklas (nibur001@fh-dortmund.de)@fh-dortmund.sciebo.de2\Master\Semester 1\PA\ProgrammingProject\sample\Condition-P'
-START_FILE_NUM = 31 # Startzahl festlegen
+START_FILE_NUM = 62 # Startzahl festlegen
 FILE_SUFFIX = '.mat' # Suffix festlegen
 FILE_PREFIX = 'P' # Anpassen 
 
