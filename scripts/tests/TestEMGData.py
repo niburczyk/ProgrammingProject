@@ -62,8 +62,8 @@ plt.tight_layout()
 plt.show()
 
 # === Feature-Extraktion (MAV, WL) ===
-WINDOW_SIZE = 250
-STEP_SIZE = 100
+WINDOW_SIZE = 500
+STEP_SIZE = 125
 
 mav_new = []
 wl_new = []

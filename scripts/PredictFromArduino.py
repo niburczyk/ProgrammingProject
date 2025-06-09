@@ -26,7 +26,7 @@ fs = 2000
 numtaps = 101
 
 # === Globale Variablen ===
-WINDOW_SIZE = 250
+WINDOW_SIZE = 500
 num_channels = None
 recording = False
 buffer = []
