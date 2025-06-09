@@ -84,14 +84,29 @@ else:
     param_grid = [
         {
             'kernel': ['rbf'],
-            'C': [0.1, 1, 10, 100],
-            'gamma': [0.001, 0.01, 0.1, 1, 'scale']
+            'C': [0.01, 0.1, 1, 10, 100, 1000],
+            'gamma': [0.0001, 0.001, 0.01, 0.1, 1, 'scale', 'auto'],
+            'shrinking': [True, False]
         },
         {
             'kernel': ['poly'],
+            'C': [0.1, 1, 10, 100],
+            'gamma': ['scale', 'auto', 0.001, 0.01],
+            'degree': [2, 3, 4, 5],
+            'coef0': [0.0, 0.5, 1.0],  # wichtig für poly
+            'shrinking': [True]
+        },
+        {
+            'kernel': ['linear'],
+            'C': [0.01, 0.1, 1, 10, 100],
+            'shrinking': [True, False]
+        },
+        {
+            'kernel': ['sigmoid'],
             'C': [0.1, 1, 10],
-            'gamma': [0.001, 0.01, 'scale'],
-            'degree': [2, 3, 4]
+            'gamma': ['scale', 0.001, 0.01],
+            'coef0': [0.0, 0.5],
+            'shrinking': [True]
         }
     ]
 
