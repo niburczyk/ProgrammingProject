@@ -84,4 +84,4 @@ def compare_emg_datasets(txt_file, mat_file, mat_variable='data'):
 
 
 # === Beispiel-Aufruf ===
-compare_emg_datasets('./sample/emg_data.txt', './sample/Condition-F/F11_10.mat', 'data')
+compare_emg_datasets('./sample/emg_data.txt', './sample/Condition-F/F59_10.mat', 'data')

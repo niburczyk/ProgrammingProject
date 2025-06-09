@@ -9,8 +9,6 @@ import joblib
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
-from tqdm import tqdm
-from sklearn.model_selection import ParameterGrid
 
 # === Datei- und Modellpfade ===
 csv_file_path = './sample/data/training_dataset_windowed.csv'
