@@ -7,6 +7,7 @@ import threading
 import os
 import sys
 from queue import Queue
+from threading import Lock
 
 # === Konfiguration ===
 SERIAL_PORT = '/dev/ttyACM0'
@@ -34,6 +35,10 @@ recording_save = []
 predictions_save = []
 data_queue = Queue()
 start_time = None
+
+# Thread-Synchronisierung
+data_lock = Lock()
+stop_event = threading.Event()
 
 # === Funktionen ===
 def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
@@ -74,7 +79,7 @@ def save_prediction_to_file(predictions):
 
 # === Lesethread ===
 def serial_reader_thread(arduino):
-    while True:
+    while not stop_event.is_set():
         try:
             line_bytes = arduino.readline()
             if not line_bytes:
@@ -87,27 +92,32 @@ def serial_reader_thread(arduino):
 
 # === Eingabe-Thread ===
 def input_thread():
-    global recording, recording_save, predictions_save, buffer, start_time
+    global recording, start_time
     print("Eingabe-Thread gestartet (START/STOP).")
-    while True:
+    while not stop_event.is_set():
         cmd = input("Eingabe (START/STOP): ").strip().upper()
         if cmd == "START":
-            recording = True
-            recording_save = []
-            predictions_save = []
-            buffer = []
-            start_time = time.time()
+            with data_lock:
+                recording = True
+                start_time = time.time()
+                buffer.clear()
+                recording_save.clear()
+                predictions_save.clear()
             print("Aufnahme gestartet.")
         elif cmd == "STOP":
-            recording = False
-            duration = time.time() - start_time if start_time else 0
-            print(f"Aufnahme gestoppt. Dauer: {duration:.2f} Sek. Samples: {len(recording_save)}")
-            save_buffer_to_file(recording_save)
-            save_prediction_to_file(predictions_save)
+            with data_lock:
+                recording = False
+                duration = time.time() - start_time if start_time else 0
+                print(f"Aufnahme gestoppt. Dauer: {duration:.2f} Sek. Samples: {len(recording_save)}")
+                save_buffer_to_file(recording_save)
+                save_prediction_to_file(predictions_save)
+                buffer.clear()
+                recording_save.clear()
+                predictions_save.clear()
 
 # === Hauptprogramm ===
 def main():
-    global num_channels, recording, buffer, recording_save, predictions_save
+    global num_channels
 
     try:
         arduino = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
@@ -123,56 +133,58 @@ def main():
     print("Warte auf serielle Daten...")
 
     try:
-        while True:
+        while not stop_event.is_set():
             if not data_queue.empty():
                 line = data_queue.get()
                 parts = line.split(',')
+
                 if num_channels is None:
                     num_channels = len(parts)
                     print(f"Anzahl Kanäle erkannt: {num_channels}")
 
                 try:
-                    # === Rohdaten umrechnen: ADC → Volt → mV ===
+                    sample = list(map(float, parts))
                     adc_resolution = 1023
-                    v_ref = 3.0  # Referenzspannung (Volt)
-                    gain_total = 2848  # Gesamter Verstärkungsfaktor
+                    v_ref = 3.0
+                    gain_total = 2848
 
-                    # Umrechnung auf jeden Kanal anwenden
                     sample = [(x / adc_resolution) * v_ref for x in sample]
-                    sample = [(x / gain_total) * 1e3 for x in sample]  # jetzt in mV
+                    sample = [(x / gain_total) * 1e3 for x in sample]  # mV
                 except ValueError:
                     print(f"Ungültige Zeile: {line}")
                     continue
 
-                if recording:
-                    timestamp_ms = int(time.time() * 1000)
-                    buffer.append(sample)
-                    recording_save.append([timestamp_ms] + sample)
+                with data_lock:
+                    if recording:
+                        timestamp_ms = int(time.time() * 1000)
+                        buffer.append(sample)
+                        recording_save.append([timestamp_ms] + sample)
 
-                    if len(buffer) >= WINDOW_SIZE:
-                        data_np = np.array(buffer[-WINDOW_SIZE:])
-                        filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
+                        if len(buffer) >= WINDOW_SIZE:
+                            data_np = np.array(buffer[-WINDOW_SIZE:])
+                            filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
 
-                        if filtered.shape[0] < WINDOW_SIZE - numtaps:
-                            continue
+                            if filtered.shape[0] < WINDOW_SIZE - numtaps:
+                                continue
 
-                        mav = calculate_mav(filtered)
-                        wl = calculate_wl(filtered)
-                        features = np.concatenate((mav, wl)).reshape(1, -1)
+                            mav = calculate_mav(filtered)
+                            wl = calculate_wl(filtered)
+                            features = np.concatenate((mav, wl)).reshape(1, -1)
 
-                        scaled = scaler.transform(features)
-                        reduced = pca.transform(scaled)
-                        prediction = model.predict(reduced)[0]
-                        class_label = label_encoder.inverse_transform([prediction])[0]
+                            scaled = scaler.transform(features)
+                            reduced = pca.transform(scaled)
+                            prediction = model.predict(reduced)[0]
+                            class_label = label_encoder.inverse_transform([prediction])[0]
 
-                        predictions_save.append((timestamp_ms, class_label, int(prediction)))
+                            predictions_save.append((timestamp_ms, class_label, int(prediction)))
 
-                        print(f"Vorhersage: {class_label} ({prediction})")
+                            print(f"Vorhersage: {class_label} ({prediction})")
 
-                        if len(buffer) > WINDOW_SIZE * 10:
-                            buffer = buffer[-WINDOW_SIZE * 5:]
+                            if len(buffer) > WINDOW_SIZE * 10:
+                                buffer = buffer[-WINDOW_SIZE * 5:]
     except KeyboardInterrupt:
         print("\nProgramm durch Benutzer beendet.")
+        stop_event.set()
     finally:
         if arduino and arduino.is_open:
             arduino.close()

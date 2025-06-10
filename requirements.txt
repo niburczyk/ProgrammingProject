@@ -2,5 +2,5 @@ pyserial
 numpy
 scipy
 joblib
-scikit-learn
+scikit-learn==1.2.2
 keyboard
