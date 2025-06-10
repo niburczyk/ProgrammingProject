@@ -21,7 +21,6 @@ Das Projekt basiert darauf, dass ein Raspberry Pi mit einem Arduino über die se
 1. Repository klonen:  
    ```bash
    git clone https://github.com/niburczyk/ProgrammingProject.git
-   cd ProgrammingProject
    ```
 
 2. In das Projektverzeichnis wechseln:  

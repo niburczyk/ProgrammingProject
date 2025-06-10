@@ -18,8 +18,8 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir numpy==1.24.3
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --force-reinstall numpy && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy and set permissions on script
 COPY scripts/flash_arduino.sh ./scripts/
