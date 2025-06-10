@@ -132,7 +132,14 @@ def main():
                     print(f"Anzahl Kanäle erkannt: {num_channels}")
 
                 try:
-                    sample = [float(x) for x in parts]
+                    # === Rohdaten umrechnen: ADC → Volt → mV ===
+                    adc_resolution = 1023
+                    v_ref = 3.0  # Referenzspannung (Volt)
+                    gain_total = 2848  # Gesamter Verstärkungsfaktor
+
+                    # Umrechnung auf jeden Kanal anwenden
+                    sample = [(x / adc_resolution) * v_ref for x in sample]
+                    sample = [(x / gain_total) * 1e3 for x in sample]  # jetzt in mV
                 except ValueError:
                     print(f"Ungültige Zeile: {line}")
                     continue
