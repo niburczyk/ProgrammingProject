@@ -7,7 +7,7 @@ import time
 
 # === Parameter ===
 WINDOW_SIZE = 500
-STEP_SIZE = 125
+STEP_SIZE = 500
 DATA_FILE = './sample/emg_data.txt'
 
 # === Modell laden ===
