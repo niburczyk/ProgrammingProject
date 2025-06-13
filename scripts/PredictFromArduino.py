@@ -5,9 +5,11 @@ from serial import Serial
 import time
 import os
 import sys
+import threading
+import queue
 
 # === Konfiguration ===
-SERIAL_PORT = 'COM5'
+SERIAL_PORT = 'ttyACM0'
 BAUD_RATE = 230400
 DATA_SAVE_DIR = os.path.expanduser('./data')
 
@@ -25,6 +27,10 @@ numtaps = 101
 
 WINDOW_SIZE = 500
 num_channels = None
+stop_event = threading.Event()
+start_time_global = None
+
+data_queue = queue.Queue()
 
 def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
     nyq = 0.5 * fs
@@ -62,9 +68,103 @@ def save_prediction_to_file(predictions):
             f.write(f"{pred[0]},{pred[2]}\n")
     print(f"Vorhersagen gespeichert in {filepath}")
 
-def main():
-    global num_channels
+def input_thread():
+    try:
+        while not stop_event.is_set():
+            try:
+                cmd = input().strip().upper()
+            except EOFError:
+                print("Input EOF erkannt, Thread wird beendet.")
+                stop_event.set()
+                break
 
+            if cmd == "STOP":
+                stop_event.set()
+    except Exception as e:
+        print(f"Unerwarteter Fehler im Input-Thread: {e}")
+
+def read_serial_thread(arduino):
+    global num_channels
+    while not stop_event.is_set():
+        if arduino.in_waiting:
+            line_bytes = arduino.readline()
+            line = line_bytes.decode('utf-8', errors='ignore').strip()
+            if not line:
+                continue
+
+            parts = line.split(',')
+            if num_channels is None:
+                num_channels = len(parts)
+                print(f"Anzahl Kanäle erkannt: {num_channels}")
+
+            try:
+                sample = list(map(float, parts))
+                adc_resolution = 1023
+                v_ref = 3.0
+                gain_total = 2848
+
+                sample = [(x / adc_resolution) * v_ref for x in sample]
+                sample = [(x / gain_total) * 1e3 for x in sample]
+            except ValueError:
+                if start_time_global:
+                    elapsed = time.time() - start_time_global
+                    print(f"{elapsed:.1f} Sekunden seit START...")
+                continue
+
+            timestamp_ms = int(time.time() * 1000)
+            data_queue.put((timestamp_ms, sample))
+
+            # Automatisch nach 30 Sekunden stoppen
+            if start_time_global and (time.time() - start_time_global) >= 30:
+                print("30 Sekunden erreicht – Aufnahme wird gestoppt.")
+                stop_event.set()
+        else:
+            time.sleep(0.001)
+
+def processing_thread():
+    buffer = []
+    recording_save = []
+    predictions_save = []
+
+    start_time = time.time()
+
+    while not stop_event.is_set() or not data_queue.empty():
+        try:
+            timestamp_ms, sample = data_queue.get(timeout=0.1)
+        except queue.Empty:
+            continue
+
+        buffer.append(sample)
+        recording_save.append([timestamp_ms] + sample)
+
+        if len(buffer) >= WINDOW_SIZE:
+            data_np = np.array(buffer[-WINDOW_SIZE:])
+            filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
+
+            if filtered.shape[0] < WINDOW_SIZE - numtaps:
+                continue
+
+            mav = calculate_mav(filtered)
+            wl = calculate_wl(filtered)
+            features = np.concatenate((mav, wl)).reshape(1, -1)
+
+            scaled = scaler.transform(features)
+            reduced = pca.transform(scaled)
+            prediction = model.predict(reduced)[0]
+            class_label = label_encoder.inverse_transform([prediction])[0]
+
+            predictions_save.append((timestamp_ms, class_label, int(prediction)))
+
+            if len(buffer) > WINDOW_SIZE * 10:
+                buffer = buffer[-WINDOW_SIZE * 5:]
+
+    duration = time.time() - start_time
+    print(f"Aufnahme gestoppt. Dauer: {duration:.2f} Sek. Samples: {len(recording_save)}")
+    save_buffer_to_file(recording_save)
+    save_prediction_to_file(predictions_save)
+
+def main():
+    global num_channels, start_time_global
     try:
         arduino = Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
         time.sleep(2)
@@ -74,87 +174,35 @@ def main():
         sys.exit(1)
 
     while True:
-        cmd = input("Eingabe (START/STOP/EXIT): ").strip().upper()
-
+        cmd = input("Eingabe (START/EXIT): ").strip().upper()
         if cmd == "EXIT":
             break
         elif cmd != "START":
             continue
 
-        print("Aufnahme gestartet... (STOP zum Beenden)")
+        print("Aufnahme gestartet... (wird nach 30 Sekunden automatisch gestoppt)")
+        stop_event.clear()
+        start_time_global = time.time()
 
-        buffer = []
-        recording_save = []
-        predictions_save = []
-        start_time = time.time()
+        input_thr = threading.Thread(target=input_thread)
+        read_thr = threading.Thread(target=read_serial_thread, args=(arduino,))
+        proc_thr = threading.Thread(target=processing_thread)
 
-        try:
-            while True:
-                if arduino.in_waiting:
-                    line_bytes = arduino.readline()
-                    line = line_bytes.decode('utf-8', errors='ignore').strip()
-                    if not line:
-                        continue
+        input_thr.start()
+        read_thr.start()
+        proc_thr.start()
 
-                    parts = line.split(',')
-                    if num_channels is None:
-                        num_channels = len(parts)
-                        print(f"Anzahl Kanäle erkannt: {num_channels}")
+        while not stop_event.is_set():
+            time.sleep(0.1)
 
-                    try:
-                        sample = list(map(float, parts))
-                        adc_resolution = 1023
-                        v_ref = 3.0
-                        gain_total = 2848
+        input_thr.join()
+        read_thr.join()
+        proc_thr.join()
 
-                        sample = [(x / adc_resolution) * v_ref for x in sample]
-                        sample = [(x / gain_total) * 1e3 for x in sample]
-                    except ValueError:
-                        print(f"Ungültige Zeile: {line}")
-                        continue
-
-                    timestamp_ms = int(time.time() * 1000)
-                    buffer.append(sample)
-                    recording_save.append([timestamp_ms] + sample)
-
-                    if len(buffer) >= WINDOW_SIZE:
-                        data_np = np.array(buffer[-WINDOW_SIZE:])
-                        filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
-
-                        if filtered.shape[0] < WINDOW_SIZE - numtaps:
-                            continue
-
-                        mav = calculate_mav(filtered)
-                        wl = calculate_wl(filtered)
-                        features = np.concatenate((mav, wl)).reshape(1, -1)
-
-                        scaled = scaler.transform(features)
-                        reduced = pca.transform(scaled)
-                        prediction = model.predict(reduced)[0]
-                        class_label = label_encoder.inverse_transform([prediction])[0]
-
-                        predictions_save.append((timestamp_ms, class_label, int(prediction)))
-                        print(f"Vorhersage: {class_label} ({prediction})")
-
-                        if len(buffer) > WINDOW_SIZE * 10:
-                            buffer = buffer[-WINDOW_SIZE * 5:]
-
-                if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                    stop_cmd = input().strip().upper()
-                    if stop_cmd == "STOP":
-                        break
-
-        except KeyboardInterrupt:
-            print("Aufnahme unterbrochen.")
-        finally:
-            duration = time.time() - start_time
-            print(f"Aufnahme gestoppt. Dauer: {duration:.2f} Sek. Samples: {len(recording_save)}")
-            save_buffer_to_file(recording_save)
-            save_prediction_to_file(predictions_save)
+        print("Threads beendet, Aufnahme gestoppt.")
 
     arduino.close()
     print("Serielle Verbindung geschlossen.")
 
 if __name__ == "__main__":
-    import select  # Für stdin-check im Hauptloop
     main()
