@@ -7,9 +7,11 @@ import os
 import sys
 import threading
 import queue
+from concurrent.futures import ThreadPoolExecutor
 
 # === Konfiguration ===
-SERIAL_PORT = 'ttyACM0'
+#SERIAL_PORT = 'ttyACM0'
+SERIAL_PORT = 'COM5'
 BAUD_RATE = 230400
 DATA_SAVE_DIR = os.path.expanduser('./data')
 
@@ -24,6 +26,7 @@ lowcut = 1.25
 highcut = 22.5
 fs = 2000
 numtaps = 101
+taps = firwin(numtaps, [lowcut / (0.5 * fs), highcut / (0.5 * fs)], pass_zero=False)
 
 WINDOW_SIZE = 500
 num_channels = None
@@ -32,11 +35,8 @@ start_time_global = None
 
 data_queue = queue.Queue()
 
-def bandpass_filter(data, lowcut, highcut, fs, numtaps=101):
-    nyq = 0.5 * fs
-    taps = firwin(numtaps, [lowcut / nyq, highcut / nyq], pass_zero=False)
-    filtered = lfilter(taps, 1.0, data, axis=0)
-    return filtered[numtaps:]
+def bandpass_filter(data):
+    return lfilter(taps, 1.0, data, axis=0)[numtaps:]
 
 def calculate_mav(sig):
     return np.mean(np.abs(sig), axis=0)
@@ -114,7 +114,6 @@ def read_serial_thread(arduino):
             timestamp_ms = int(time.time() * 1000)
             data_queue.put((timestamp_ms, sample))
 
-            # Automatisch nach 30 Sekunden stoppen
             if start_time_global and (time.time() - start_time_global) >= 30:
                 print("30 Sekunden erreicht – Aufnahme wird gestoppt.")
                 stop_event.set()
@@ -125,38 +124,40 @@ def processing_thread():
     buffer = []
     recording_save = []
     predictions_save = []
-
     start_time = time.time()
 
-    while not stop_event.is_set() or not data_queue.empty():
-        try:
-            timestamp_ms, sample = data_queue.get(timeout=0.1)
-        except queue.Empty:
-            continue
-
-        buffer.append(sample)
-        recording_save.append([timestamp_ms] + sample)
-
-        if len(buffer) >= WINDOW_SIZE:
-            data_np = np.array(buffer[-WINDOW_SIZE:])
-            filtered = bandpass_filter(data_np, lowcut, highcut, fs, numtaps)
-
-            if filtered.shape[0] < WINDOW_SIZE - numtaps:
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        while not stop_event.is_set() or not data_queue.empty():
+            try:
+                timestamp_ms, sample = data_queue.get(timeout=0.1)
+            except queue.Empty:
                 continue
 
-            mav = calculate_mav(filtered)
-            wl = calculate_wl(filtered)
-            features = np.concatenate((mav, wl)).reshape(1, -1)
+            buffer.append(sample)
+            recording_save.append([timestamp_ms] + sample)
 
-            scaled = scaler.transform(features)
-            reduced = pca.transform(scaled)
-            prediction = model.predict(reduced)[0]
-            class_label = label_encoder.inverse_transform([prediction])[0]
+            if len(buffer) >= WINDOW_SIZE:
+                data_np = np.array(buffer[-WINDOW_SIZE:])
 
-            predictions_save.append((timestamp_ms, class_label, int(prediction)))
+                future = executor.submit(bandpass_filter, data_np)
+                filtered = future.result()
 
-            if len(buffer) > WINDOW_SIZE * 10:
-                buffer = buffer[-WINDOW_SIZE * 5:]
+                if filtered.shape[0] < (WINDOW_SIZE - numtaps):
+                    continue
+
+                mav = calculate_mav(filtered)
+                wl = calculate_wl(filtered)
+                features = np.concatenate((mav, wl)).reshape(1, -1)
+
+                scaled = scaler.transform(features)
+                reduced = pca.transform(scaled)
+                prediction = model.predict(reduced)[0]
+                class_label = label_encoder.inverse_transform([prediction])[0]
+
+                predictions_save.append((timestamp_ms, class_label, int(prediction)))
+
+                if len(buffer) > WINDOW_SIZE * 10:
+                    buffer = buffer[-WINDOW_SIZE * 5:]
 
     duration = time.time() - start_time
     print(f"Aufnahme gestoppt. Dauer: {duration:.2f} Sek. Samples: {len(recording_save)}")
