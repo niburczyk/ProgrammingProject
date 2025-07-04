@@ -10,7 +10,7 @@ import queue
 from concurrent.futures import ThreadPoolExecutor
 
 # === Konfiguration ===
-SERIAL_PORT = 'ttyACM0'
+SERIAL_PORT = '/dev/ttyACM0'
 #SERIAL_PORT = 'COM5'
 BAUD_RATE = 230400
 DATA_SAVE_DIR = os.path.expanduser('./data')
