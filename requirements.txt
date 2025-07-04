@@ -1,4 +1,4 @@
-pyserial
+pyserial==3.5
 keyboard
 numpy
 scikit-learn==1.6.1
