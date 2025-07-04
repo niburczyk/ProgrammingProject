@@ -3,7 +3,6 @@ services:
     build: .
     devices:
       - "/dev/ttyACM0:/dev/ttyACM0"
-    privileged: true
     volumes:
       - ./model:/model
       - ./sample:/sample
@@ -12,8 +11,18 @@ services:
     command: >
       bash -c "
         ./scripts/flash_arduino.sh &&
-        sync &&
-        sleep 5 &&
+        echo 'Flashing complete. Waiting for serial port to become available...' &&
+        timeout=30 # Warte maximal 30 Sekunden
+        while [ ! -c /dev/ttyACM0 ] && [ \$timeout -gt 0 ]; do
+          echo 'Port /dev/ttyACM0 not found yet. Retrying in 1 second...'
+          sleep 1
+          timeout=\$((timeout - 1))
+        done &&
+        if [ ! -c /dev/ttyACM0 ]; then
+          echo 'Error: Port /dev/ttyACM0 did not become available.'
+          exit 1
+        fi &&
+        echo 'Port /dev/ttyACM0 found. Starting Python script...' &&
         exec python3 ./scripts/PredictFromArduino.py
       "
     tty: true
