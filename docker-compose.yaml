@@ -12,7 +12,7 @@ services:
     command: >
       bash -c "
         ./scripts/flash_arduino.sh &&
-        sleep 3
+        sleep 5
         exec python3 ./scripts/PredictFromArduino.py
       "
     tty: true
