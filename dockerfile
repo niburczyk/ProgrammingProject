@@ -16,9 +16,9 @@ RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/inst
 
 WORKDIR /app
 
-# Install Python dependencies
+# Upgrade pip and install required packages
 COPY requirements.txt .
-RUN pip install --no-cache-dir --force-reinstall numpy && \
+RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy and set permissions on script
