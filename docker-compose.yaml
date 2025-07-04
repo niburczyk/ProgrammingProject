@@ -3,6 +3,7 @@ services:
     build: .
     devices:
       - "/dev/ttyACM0:/dev/ttyACM0"
+    privileged: true
     volumes:
       - ./model:/model
       - ./sample:/sample
