@@ -30,8 +30,8 @@ order = 4
 remove_time = 3  # Sekunden vorne und hinten
 remove_samples = remove_time * fs  # Anzahl Samples zum Entfernen
 
-window_size = 500  # 250 Samples = 125 ms
-step_size = 125    # 50% Überlappung = 62.5 ms pro Schritt
+window_size = 125  # 250 Samples = 125 ms
+step_size = 25    # 50% Überlappung = 62.5 ms pro Schritt
 
 # === Daten-Container
 features = []
