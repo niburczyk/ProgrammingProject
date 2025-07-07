@@ -1,17 +1,16 @@
 import joblib
 import numpy as np
-from scipy.signal import firwin, lfilter
+from scipy.signal import butter, sosfiltfilt
 from serial import Serial
 import time
 import os
 import sys
 import threading
-import queue
+from multiprocessing import Process, Queue, Event, freeze_support
 from concurrent.futures import ThreadPoolExecutor
 
 # === Konfiguration ===
-SERIAL_PORT = '/dev/ttyACM0'
-#SERIAL_PORT = 'COM5'
+SERIAL_PORT = 'COM3'  # Passe ggf. an
 BAUD_RATE = 230400
 DATA_SAVE_DIR = os.path.expanduser('./data')
 
@@ -25,18 +24,18 @@ label_encoder = joblib.load('./model/label_encoder.pkl')
 lowcut = 1.25
 highcut = 22.5
 fs = 2000
-numtaps = 101
-taps = firwin(numtaps, [lowcut / (0.5 * fs), highcut / (0.5 * fs)], pass_zero=False)
+nyq = 0.5 * fs
+sos = butter(4, [lowcut / nyq, highcut / nyq], btype='bandpass', output='sos')  # ersetzt firwin
 
 WINDOW_SIZE = 500
 num_channels = None
-stop_event = threading.Event()
+stop_event = Event()
 start_time_global = None
 
-data_queue = queue.Queue()
+data_queue = Queue()
 
 def bandpass_filter(data):
-    return lfilter(taps, 1.0, data, axis=0)[numtaps:]
+    return sosfiltfilt(sos, data, axis=0)
 
 def calculate_mav(sig):
     return np.mean(np.abs(sig), axis=0)
@@ -77,7 +76,6 @@ def input_thread():
                 print("Input EOF erkannt, Thread wird beendet.")
                 stop_event.set()
                 break
-
             if cmd == "STOP":
                 stop_event.set()
     except Exception as e:
@@ -91,36 +89,28 @@ def read_serial_thread(arduino):
             line = line_bytes.decode('utf-8', errors='ignore').strip()
             if not line:
                 continue
-
             parts = line.split(',')
             if num_channels is None:
                 num_channels = len(parts)
                 print(f"Anzahl Kanäle erkannt: {num_channels}")
-
             try:
                 sample = list(map(float, parts))
                 adc_resolution = 1023
                 v_ref = 3.0
                 gain_total = 2848
-
                 sample = [(x / adc_resolution) * v_ref for x in sample]
                 sample = [(x / gain_total) * 1e3 for x in sample]
             except ValueError:
-                if start_time_global:
-                    elapsed = time.time() - start_time_global
-                    print(f"{elapsed:.1f} Sekunden seit START...")
                 continue
-
             timestamp_ms = int(time.time() * 1000)
             data_queue.put((timestamp_ms, sample))
-
             if start_time_global and (time.time() - start_time_global) >= 30:
                 print("30 Sekunden erreicht – Aufnahme wird gestoppt.")
                 stop_event.set()
         else:
             time.sleep(0.001)
 
-def processing_thread():
+def processing_process(data_queue, stop_event):
     buffer = []
     recording_save = []
     predictions_save = []
@@ -130,39 +120,35 @@ def processing_thread():
         while not stop_event.is_set() or not data_queue.empty():
             try:
                 timestamp_ms, sample = data_queue.get(timeout=0.1)
-            except queue.Empty:
+            except:
                 continue
-
             buffer.append(sample)
             recording_save.append([timestamp_ms] + sample)
-
             if len(buffer) >= WINDOW_SIZE:
                 data_np = np.array(buffer[-WINDOW_SIZE:])
-
                 future = executor.submit(bandpass_filter, data_np)
                 filtered = future.result()
-
-                if filtered.shape[0] < (WINDOW_SIZE - numtaps):
-                    continue
-
                 mav = calculate_mav(filtered)
                 wl = calculate_wl(filtered)
                 features = np.concatenate((mav, wl)).reshape(1, -1)
-
                 scaled = scaler.transform(features)
                 reduced = pca.transform(scaled)
                 prediction = model.predict(reduced)[0]
                 class_label = label_encoder.inverse_transform([prediction])[0]
-
                 predictions_save.append((timestamp_ms, class_label, int(prediction)))
-
                 if len(buffer) > WINDOW_SIZE * 10:
                     buffer = buffer[-WINDOW_SIZE * 5:]
-
     duration = time.time() - start_time
     print(f"Aufnahme gestoppt. Dauer: {duration:.2f} Sek. Samples: {len(recording_save)}")
     save_buffer_to_file(recording_save)
     save_prediction_to_file(predictions_save)
+
+def timer_thread():
+    while not stop_event.is_set():
+        if start_time_global:
+            elapsed = time.time() - start_time_global
+            print(f"{elapsed:.1f} Sekunden seit START...")
+        time.sleep(1)
 
 def main():
     global num_channels, start_time_global
@@ -173,37 +159,39 @@ def main():
     except Exception as e:
         print(f"Verbindung fehlgeschlagen: {e}")
         sys.exit(1)
-
     while True:
         cmd = input("Eingabe (START/EXIT): ").strip().upper()
         if cmd == "EXIT":
             break
         elif cmd != "START":
             continue
-
         print("Aufnahme gestartet... (wird nach 30 Sekunden automatisch gestoppt)")
         stop_event.clear()
         start_time_global = time.time()
 
         input_thr = threading.Thread(target=input_thread)
         read_thr = threading.Thread(target=read_serial_thread, args=(arduino,))
-        proc_thr = threading.Thread(target=processing_thread)
+        timer_thr = threading.Thread(target=timer_thread)
+        proc_proc = Process(target=processing_process, args=(data_queue, stop_event))
 
         input_thr.start()
         read_thr.start()
-        proc_thr.start()
+        timer_thr.start()
+        proc_proc.start()
 
         while not stop_event.is_set():
             time.sleep(0.1)
 
         input_thr.join()
         read_thr.join()
-        proc_thr.join()
+        timer_thr.join()
+        proc_proc.join()
 
-        print("Threads beendet, Aufnahme gestoppt.")
+        print("Threads und Prozesse beendet, Aufnahme gestoppt.")
 
     arduino.close()
     print("Serielle Verbindung geschlossen.")
 
 if __name__ == "__main__":
+    freeze_support()  # Wichtig für Windows + multiprocessing
     main()

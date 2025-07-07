@@ -27,11 +27,11 @@ lowcut = 1.25
 highcut = 22.5
 order = 4
 
-remove_time = 3  # Sekunden vorne und hinten
+remove_time = 2  # Sekunden vorne und hinten
 remove_samples = remove_time * fs  # Anzahl Samples zum Entfernen
 
-window_size = 500  # 250 Samples = 125 ms
-step_size = 125    # 50% Überlappung = 62.5 ms pro Schritt
+window_size = 250  # 250 Samples = 125 ms
+step_size = 50    # 50% Überlappung = 62.5 ms pro Schritt
 
 # === Daten-Container
 features = []
