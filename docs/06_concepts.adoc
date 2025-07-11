@@ -11,7 +11,7 @@ Das Modelltraining ist der Prozess, bei dem das SVM-Modell auf den vorbereiteten
 
 === Portabilität und Integrationsfähigkeit
 
-Die Portabilität ist ein bedeutendes Konzept, da das entwickelte Modell auf verschiedenen Hardwareplattformen (wie Arduino) betrieben werden soll. Die Integrationsfähigkeit gewährleistet, dass das System problemlos in andere Anwendungen oder Umgebungen integriert werden kann, wodurch die Flexibilität und der Nutzen des Projekts erhöht werden.
+Die Portabilität ist ein bedeutendes Konzept, da das entwickelte Modell auf verschiedenen Hardwareplattformen (wie Raspberry Pi) betrieben werden soll. Die Integrationsfähigkeit gewährleistet, dass das System problemlos in andere Anwendungen oder Umgebungen integriert werden kann, wodurch die Flexibilität und der Nutzen des Projekts erhöht werden.
 
 === Wartbarkeit
 

@@ -1,7 +1,7 @@
 [[section-solution-strategy]]
 == Lösungsstrategie
 
-Die Lösungsstrategie dieses Projekts basiert auf der Kombination von maschinellem Lernen (Support Vector Machine) und der Verarbeitung von EMG-Daten, um Handpositionen in Echtzeit auf einem Mikrocontroller (Arduino) zu klassifizieren. Im Folgenden werden die wichtigsten Aspekte der Lösungsstrategie beschrieben.
+Die Lösungsstrategie dieses Projekts basiert auf der Kombination von maschinellem Lernen (Support Vector Machine) und der Verarbeitung von EMG-Daten, um Handpositionen in Echtzeit auf einem Mikrocomputer (Raspberry Pi 4) zu klassifizieren. Im Folgenden werden die wichtigsten Aspekte der Lösungsstrategie beschrieben.
 
 === Datenvorverarbeitung
 
@@ -25,7 +25,7 @@ Nach der Vorverarbeitung werden statistische Merkmale aus den EMG-Daten extrahie
 
 === Modellentwicklung und -training
 
-Das SVM-Modell wird auf Basis der extrahierten Merkmale trainiert, um verschiedene Handpositionen (z.B. Faust geschlossen, Faust offen, Pinzettengriff) zu klassifizieren.
+Das SVM-Modell wird auf Basis der extrahierten Merkmale trainiert, um verschiedene Handpositionen (z.B. Faust geschlossen, Faust offen, Präzisionsgriff) zu klassifizieren.
 
 1. **Training**:
    - Das SVM-Modell wird mit einem bestehenden Datensatz trainiert, der verschiedene Handpositionen und die entsprechenden EMG-Daten enthält.
@@ -34,7 +34,7 @@ Das SVM-Modell wird auf Basis der extrahierten Merkmale trainiert, um verschiede
 2. **Modellbewertung**:
    - Die Leistung des Modells wird mit Metriken wie Genauigkeit, Präzision und Recall bewertet, um sicherzustellen, dass das Modell in der Lage ist, die verschiedenen Handgesten zuverlässig zu klassifizieren.
 
-=== Modell-Export und Integration auf Arduino
+=== Modell-Export und Integration auf Mikrocomputer
 
 Ein zentraler Teil der Lösungsstrategie ist die Implementierung des Modells, um die Klassifikation in Echtzeit durchzuführen. 
 
@@ -46,3 +46,4 @@ Derzeit wird das trainierte SVM-Modell als `.pkl`-Datei (Pickle-Format) gespeich
    ```python
    import joblib
    joblib.dump(svm_model, 'svm_model.pkl')
+   ```

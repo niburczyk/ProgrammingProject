@@ -9,7 +9,6 @@ Enthaltene Bausteine::
 - **Datenverarbeitungsmodul**: Führt die Vorverarbeitung der EMG-Daten durch, einschließlich Normalisierung und Filterung.
 - **Merkmalextraktionsmodul**: Extrahiert relevante Merkmale aus den vorverarbeiteten Daten.
 - **SVM-Modell**: Klassifiziert die Handpositionen basierend auf den extrahierten Merkmalen.
-- **Arduino-Integration**: Liefert die aufgezeichneten EMG-Daten.
 - **Raspberry Pi - Integration**: Verwendet das erzeugte SVM-Model und berechnet die Vorhersage in Echtzeit, über einen kurzen Zeitraum von gesammelten EMG-Daten
 
 ==== Datenakquisitionsmodul

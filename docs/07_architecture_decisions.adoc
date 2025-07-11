@@ -26,7 +26,7 @@ Bandpassfilterung hilft, nur die Frequenzen zu extrahieren, die für die Handpos
 Python bietet eine Vielzahl von leistungsstarken Bibliotheken (z.B. `scikit-learn`, `numpy`, `pandas`), die die Entwicklung von Machine Learning-Modellen und die Datenmanipulation erheblich erleichtern.
 Die große Community und die umfangreiche Dokumentation machen es einfacher, Unterstützung und Ressourcen zu finden.
 
-=== 4. Export des Modells für die Verwendung auf dem Arduino
+=== 4. Export des Modells für die Verwendung auf dem Raspberry Pi
 
 **Entscheidung**: Das trainierte SVM-Modell wird als `.pkl`-Datei gespeichert.
 
@@ -40,4 +40,13 @@ Die Verwendung von `joblib` zur Speicherung des Modells ermöglicht eine einfach
 **Begründung**: 
 Ein modularer Ansatz erleichtert die Anpassung und Erweiterung des Systems, z.B. wenn neue Handpositionen hinzugefügt oder Änderungen an den Algorithmen vorgenommen werden müssen.
 Eine klare Trennung von Funktionen (z.B. Datenverarbeitung, Modelltraining, Klassifikation) erhöht die Lesbarkeit und Testbarkeit des Codes.
+
+=== 6. Einsatz von Docker Compose für Containerisierung auf Linux-Systemen
+
+**Entscheidung**: Das gesamte System wird als Docker Compose Stack bereitgestellt und kann in einem Container-basierten Umfeld auf Linux-Systemen gestartet werden.
+
+**Begründung**:  
+Die Containerisierung ermöglicht eine einfache und konsistente Bereitstellung des Systems unabhängig von der zugrundeliegenden Linux-Distribution oder Umgebung.  
+Durch Docker Compose können alle benötigten Komponenten (z.B. Datenverarbeitung, Modellservice, eventuell weitere Services) als verbundene Container orchestriert werden, was den Betrieb vereinfacht und Skalierbarkeit sowie Wartbarkeit verbessert.  
+Dies unterstützt insbesondere die einfache Integration in bestehende Linux-basierte Infrastruktur und erleichtert automatisierte Deployments und Updates.
 

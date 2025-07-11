@@ -5,7 +5,7 @@ Dieser Abschnitt beschreibt die fachlichen und technischen Schnittstellen des Sy
 
 === Fachlicher Kontext
 
-Das System ist darauf ausgelegt, Handgesten anhand von EMG-Daten zu erkennen und diese in Echtzeit zu klassifizieren. Der Hauptprozess beginnt mit der Datenerfassung über Elektroden am Unterarm, gefolgt von der Datenverarbeitung und der Klassifikation der Handpositionen (z.B. Faust geschlossen, Faust offen, Pinzettengriff). Das Ergebnis der Klassifikation wird entweder auf einem externen Display angezeigt oder zur Steuerung eines anderen Geräts verwendet (z.B. einer Prothese oder eines Roboters).
+Das System ist darauf ausgelegt, Handgesten anhand von EMG-Daten zu erkennen und diese in Echtzeit zu klassifizieren. Der Hauptprozess beginnt mit der Datenerfassung über Elektroden am Unterarm, gefolgt von der Datenverarbeitung und der Klassifikation der Handpositionen (z.B. Faust geschlossen, Faust offen, Präzisionsgriff). Das Ergebnis der Klassifikation wird entweder auf einem externen Display angezeigt oder zur Steuerung eines anderen Geräts verwendet (z.B. einer Prothese oder eines Roboters).
 
 **Fachliche Schnittstellen**:
 
@@ -17,6 +17,7 @@ Das System ist darauf ausgelegt, Handgesten anhand von EMG-Daten zu erkennen und
 |===
 
 **Erläuterung der externen fachlichen Schnittstellen**:
+
 - Die EMG-Sensoren erfassen die elektrische Aktivität der Muskeln und liefern Rohdaten. Diese Daten werden im System verarbeitet und zur Klassifikation verwendet.
 - Die Ausgabe des Systems ist die erkannte Handposition, die entweder an eine externe Anzeige ausgegeben oder zur Steuerung eines externen Geräts (wie z.B. eines Roboters) verwendet wird.
 
@@ -30,11 +31,12 @@ Das System wird auf einem Mikrocomputer (Raspberry Pi) ausgeführt und verwendet
 |===
 | Externe Komponente | Schnittstellenname | Beschreibung 
 | EMG-Sensoren | ADC (Analog-Digital-Wandler) | Die analogen EMG-Signale werden vom Arduino über einen ADC in digitale Daten umgewandelt.
-| SVM-Modell | C-Header (`svm_model.h`) | Das in Python entwickelte und exportierte SVM-Modell wird als C-Code auf dem Arduino eingebunden.
+| SVM-Modell | SVM-Model | Das in Python entwickelte und exportierte SVM-Modell wird als joblib-Datei auf dem Mikrocomputer eingebunden.
 | Externes Gerät/Anzeige | UART/Serial | Die erkannte Handposition wird über die serielle Schnittstelle des Arduino an ein externes Gerät oder eine Anzeige gesendet.
 |===
 
 **Mapping fachliche auf technische Schnittstellen**:
-- Die **EMG-Sensoren** (fachliche Schnittstelle) liefern Daten an den **ADC des Arduino** (technische Schnittstelle), der diese Daten digitalisiert.
+
+- Die **EMG-Sensoren** (OLIMEX SHIELD-EKG-EMG) liefern Daten an den **ADC des Arduino** (technische Schnittstelle), der diese Daten digitalisiert.
 - Die **Klassifikationsergebnisse** (fachliche Schnittstelle) werden über **UART/Serial** (technische Schnittstelle) an externe Geräte oder Anzeigen gesendet.
 

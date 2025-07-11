@@ -5,19 +5,19 @@ Dieses Projekt zielt darauf ab, ein Modell zur Klassifizierung von Handpositione
 
 === Aufgabenstellung
 
-Die Hauptaufgabe dieses Projekts besteht darin, eine zuverlässige und performante Support Vector Machine (SVM) zur Klassifikation von Handpositionen anhand von EMG-Daten zu entwickeln. Die Daten werden durch Elektroden erfasst, die die elektrische Aktivität der Muskeln messen. Anschließend werden die Rohdaten verarbeitet, statistische Merkmale extrahiert und das Modell trainiert. Die Ergebnisse werden in ein C-Format exportiert, um das Modell auf einem Arduino zur Klassifizierung von Echtzeitdaten zu verwenden.
+Die Hauptaufgabe dieses Projekts besteht darin, eine zuverlässige und performante Support Vector Machine (SVM) zur Klassifikation von Handpositionen anhand von EMG-Daten zu entwickeln. Die Daten werden durch Elektroden erfasst, die die elektrische Aktivität der Muskeln messen. Anschließend werden die Rohdaten verarbeitet, statistische Merkmale extrahiert und das Modell trainiert. 
 
 - Implementierung einer Pipeline zur Vorverarbeitung der EMG-Daten (z.B. Filterung, Normalisierung)
 - Training und Validierung eines SVM-Modells basierend auf den extrahierten Merkmalen
-- Export des trainierten Modells in eine Form, die auf einem Arduino verwendet werden kann
-- Integration des Modells zur Echtzeit-Klassifikation auf dem Arduino
+- Export des trainierten Modells 
+- Integration des Modells zur Echtzeit-Klassifikation auf einem Mikrocomputer
 
 === Qualitätsziele
 
 - **Genauigkeit**: Das Modell muss eine hohe Klassifikationsgenauigkeit bei der Bestimmung der Handpositionen erreichen, um im praktischen Einsatz verlässlich zu funktionieren.
-- **Leistung**: Das Modell muss effizient und schnell genug sein, um in Echtzeit auf einem ressourcenbeschränkten System wie dem Arduino zu laufen.
+- **Leistung**: Das Modell muss effizient und schnell genug sein, um in Echtzeit auf einem ressourcenbeschränkten System zu laufen.
 - **Robustheit**: Das System muss auch unter schwierigen Bedingungen wie variierenden EMG-Signalen oder Rauschen stabil arbeiten.
-- **Portabilität**: Der erzeugte Code muss so optimiert sein, dass er leicht auf Mikrocontrollern wie dem Arduino eingesetzt werden kann.
+- **Portabilität**: Der erzeugte Code muss so optimiert sein, dass er leicht auf Mikrocomputer eingesetzt werden kann.
 
 === Stakeholder
 

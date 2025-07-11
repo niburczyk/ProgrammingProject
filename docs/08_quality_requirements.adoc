@@ -39,4 +39,4 @@
      - Zugänglichkeit: Informationen über den aktuellen Status der Klassifikation sollten jederzeit verfügbar sein.
    - **Akzeptanzkriterien**: Mindestens 80 % der Benutzer sollten die Schnittstelle als intuitiv und benutzerfreundlich bewerten.
 
-*Die Qualitätsszenarien sind als Zenarien anzusehen, die in späteren Projekten umgesetzt werden könnten.*
+*Die Qualitätsszenarien sind als Szenarien anzusehen, die in späteren Projekten umgesetzt werden könnten.*

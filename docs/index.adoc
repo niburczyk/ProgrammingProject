@@ -1,10 +1,10 @@
 = SVM zur Bestimmung von Handpositionen mittels EMG-Daten
 :revnumber: 2.0
-:revdate: Juni 2025
+:revdate: Juli 2025
 :numbered:
-
-:toc-title: Inhaltsverzeichnis
 :toc:
+:toc-title: Inhaltsverzeichnis
+
 
 // Horizontaler Strich
 ***
